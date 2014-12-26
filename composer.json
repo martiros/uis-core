@@ -1,0 +1,27 @@
+{
+    "name": "uis/core",
+    "type": "library",
+    "description": "",
+    "authors": [
+        {
+            "name": "Martiros Aghajanyan",
+            "email": "martiros.aghajanyan@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "*",
+        "mashape/unirest-php" : "dev-master"
+    },
+    "autoload": {
+        "classmap": [
+            "src/migrations"
+        ],
+        "psr-0": {
+            "UIS\\Core\\": "src/"
+        },
+        "files": [
+            "src/UIS/Core/Support/helpers.php"
+        ]
+    }
+}
