@@ -2,9 +2,9 @@
 
 namespace UIS\Core\Controllers\Api;
 
+use Config;
+use Lang;
 use UIS\Core\Controllers\BaseController;
-use Illuminate\Foundation\Application;
-use Lang, Config;
 
 class UtilController extends BaseController
 {
