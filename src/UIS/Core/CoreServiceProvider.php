@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
+use App;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -11,7 +12,7 @@ class CoreServiceProvider extends ServiceProvider
      *
      * @var bool
      */
-    protected $defer = false;
+//    protected $defer = true;
 
     /**
      * Bootstrap the application events.
@@ -20,7 +21,7 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->package('u-is/core');
+//        $this->package('u-is/core');
         require_once __DIR__.'/../../routes.php';
     }
 
@@ -50,7 +51,6 @@ class CoreServiceProvider extends ServiceProvider
                 return $trans;
             }
         );
-
         $this->app->singleton(
             'uis.app',
             function () {
@@ -58,6 +58,29 @@ class CoreServiceProvider extends ServiceProvider
                 return $app;
             }
         );
+
+        $this->registerAppProfiler();
+    }
+
+    protected function registerAppProfiler()
+    {
+        if (App::environment() === 'testing') {
+            return;
+        }
+//        App::before(
+//            function () {
+                \Carbon\Carbon::setToStringFormat(\Carbon\Carbon::ISO8601);
+                $_SERVER['REQUEST_TIME_FLOAT'] = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : microtime(true);
+                $_SERVER['APP_START_TIME_FLOAT'] = microtime(true);
+                app('uis.app')->profileStart();
+//            }
+//        );
+
+        register_shutdown_function(function () {
+//            uis_dump( app(), \TestCase::$appInstance );
+//            $_SERVER['APP_END_TIME_FLOAT'] = microtime(true);
+//            app('uis.app')->profileEnd();
+        });
 
     }
 

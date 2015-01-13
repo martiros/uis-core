@@ -29,7 +29,16 @@ class ConfigController extends BaseController
             if (isset($apiConfig['data'])) {
                 foreach ($apiConfig['data'] as $configItemKey => $configItem) {
                     if (is_callable($configItem)) {
-                        $apiResultData[$configItemKey] = call_user_func($configItem, $this->app);
+                        $parameters = [];
+                        $reflector = new \ReflectionFunction($configItem);
+                        foreach ($reflector->getParameters() as $key => $parameter) {
+                            $parameters[$key] = null;
+                            $class = $parameter->getClass();
+                            if ($class) {
+                                $parameters[$key] = $this->app->make($class->name);
+                            }
+                        }
+                        $apiResultData[$configItemKey] = call_user_func_array($configItem, $parameters);
                     } else {
                         $apiResultData[$configItemKey] = $configItem;
                     }

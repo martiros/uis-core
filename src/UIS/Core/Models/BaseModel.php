@@ -33,6 +33,14 @@ abstract class BaseModel extends \Illuminate\Database\Eloquent\Model
         return $query->where('show_status', BaseModel::STATUS_ACTIVE);
     }
 
+    protected function asDateTime($value)
+    {
+        die();
+        if ($value === '0000-00-00 00:00:00') {
+            return null;
+        }
+        return parent::asDateTime($value);
+    }
 
 //    public static function all($columns = null)
 //    {

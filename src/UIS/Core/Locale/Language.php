@@ -4,8 +4,8 @@ namespace UIS\Core\Locale;
 
 use Config, App, DateTime, Request, DB;
 use Illuminate\Translation\Translator;
-use \UIS\Core\Models\Language as LanguageModel;
-use \UIS\Core\DB\BufferInsert;
+use UIS\Core\Models\Language as LanguageModel;
+use UIS\Core\DB\BufferInsert;
 use Carbon\Carbon;
 
 class Language extends Translator
@@ -23,26 +23,36 @@ class Language extends Translator
     {
         $locale = $locale === null ? $this->locale : $locale;
         if (isset($this->loadedKeys[$locale][$key])) {
-            return $this->loadedKeys[$locale][$key];
+            return $this->getTransLine($this->loadedKeys[$locale][$key], $replace);
         }
         list($namespace, $group, $item) = $this->parseKey($key);
 
         $this->load($namespace, $group, $locale);
         if (isset($this->loadedKeys[$locale][$key])) {
-            return $this->loadedKeys[$locale][$key];
+            return $this->getTransLine($this->loadedKeys[$locale][$key], $replace);
         }
         $this->addNotDefinedKeyword($namespace, $group, $key);
         return $key;
     }
 
+    protected function getTransLine($line, $replace)
+    {
+        if (is_string($line))
+        {
+            return $this->makeReplacements($line, $replace);
+        }
+        elseif (is_array($line) && count($line) > 0)
+        {
+            return $line;
+        }
+    }
+
     protected function addNotDefinedKeyword($namespace, $group, $key)
     {
         if ($this->notDefinedKeywords === null) {
-            App::shutdown(
-                function () {
-                    $this->logNotDefinedKeywords();
-                }
-            );
+            register_shutdown_function(function(){
+                $this->logNotDefinedKeywords();
+            });
             $this->notDefinedKeywords = array();
         }
         $appName = Config::get('app.name');
@@ -138,10 +148,14 @@ class Language extends Translator
     public function getDictionaryLastUpdateDate()
     {
         $lastEditInfo = DB::table('dictionary_ml')->select('edit_date')->orderBy('edit_date', 'desc')->first();
-        if (empty($lastEditInfo)) {
+        if (empty($lastEditInfo) || $lastEditInfo === '0000-00-00' || $lastEditInfo === '0000-00-00 00:00:00') {
             return null;
         }
-        return new Carbon($lastEditInfo->edit_date);
+        $lastEditInfo = $lastEditInfo->edit_date;
+        if (empty($lastEditInfo) || $lastEditInfo === '0000-00-00' || $lastEditInfo === '0000-00-00 00:00:00') {
+            return null;
+        }
+        return new Carbon($lastEditInfo);
     }
 
     public function cLng($key = null)

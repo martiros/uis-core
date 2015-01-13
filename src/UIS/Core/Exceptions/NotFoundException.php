@@ -2,7 +2,9 @@
 
 namespace UIS\Core\Exceptions;
 
-class NotFoundException extends Exception
+use \UIS\Core\Exceptions\CatchableException;
+
+class NotFoundException extends CatchableException
 {
     public function getMessageData()
     {
