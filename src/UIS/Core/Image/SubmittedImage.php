@@ -1,6 +1,6 @@
 <?php namespace UIS\Core\Image;
 
-use UIS\Core\File\UploadedFile;
+use UIS\Core\File\UploadedTempFile;
 
 class SubmittedImage
 {
@@ -14,7 +14,7 @@ class SubmittedImage
     protected $imageType = null;
 
     /**
-     * @var \UIS\Core\File\UploadedFile
+     * @var \UIS\Core\File\UploadedTempFile
      */
     protected $tempImage = null;
 
@@ -51,15 +51,15 @@ class SubmittedImage
     }
 
     /**
-     * @param UploadedFile $tempImage
+     * @param UploadedTempFile $tempImage
      */
-    public function setTempImage(UploadedFile $tempImage)
+    public function setTempImage(UploadedTempFile $tempImage)
     {
         $this->tempImage = $tempImage;
     }
 
     /**
-     * @return UploadedFile
+     * @return UploadedTempFile
      */
     public function getTempImage()
     {

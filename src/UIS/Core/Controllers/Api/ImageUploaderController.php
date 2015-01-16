@@ -13,12 +13,12 @@ class ImageUploaderController extends BaseController
     public function upload()
     {
         $imageUploader = new Uploader();
-        $uploadedFile = $imageUploader->saveToTemp();
+        $uploadedFileId = $imageUploader->saveToTemp();
 
         return $this->api(
             'OK',
             [
-                'file' => $uploadedFile
+                'file_id' => $uploadedFileId
             ]
         );
     }
@@ -182,15 +182,3 @@ class ImageController extends BaseController
     }
 }
 
-
-?><?php
-
-
-//	@todo:	add min size  for image file
-//	@todo:	add max, min  size as size of picture
-//	@todo:	remove xss from uploaded image
-
-
-/*************************************************************************/
-/************************   CHECKED !!!  *********************************/
-/*************************************************************************/

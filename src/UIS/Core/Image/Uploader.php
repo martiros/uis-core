@@ -1,18 +1,22 @@
 <?php namespace UIS\Core\Image;
 
-use GuzzleHttp\Tests\Plugin\Redirect\RedirectTest;
+use Auth;
+use Carbon\Carbon;
+use DB;
 use Illuminate\Support\Facades\Request;
+use UIS\Core\File\Exceptions\UnableCreateDirException;
 use UIS\Core\File\UploadedFile;
 use UIS\Core\File\Uploader as FileUploader;
+use UIS\Core\File\Exceptions\FileNotFoundException;
 use UIS\Core\Image\Exceptions\ImageNotFoundException;
 use UIS\Core\Image\Exceptions\InvalidFileMaxSizeException;
 use UIS\Core\Image\Exceptions\InvalidImageException;
 use UIS\Core\Image\Exceptions\InvalidImageExtensionException;
-use UIS\Core\File\Exceptions\UnableCreateDirException;
-use Auth, DB, Carbon\Carbon;
 
 class Uploader extends FileUploader
 {
+    const TYPE = 'image';
+
     protected $options = [
         'file_max_size' => 5,
         'extensions' => ['jpg', 'jpeg', 'png']
@@ -26,7 +30,7 @@ class Uploader extends FileUploader
 
     public function getUploaderType()
     {
-        return 'image';
+        return self::TYPE;
     }
 
     /**
@@ -103,11 +107,24 @@ class Uploader extends FileUploader
 
     /**
      * @param int $id
+     * @param bool $checkUser
+     * @param bool $findOrFail
      * @return \UIS\Core\File\UploadedFile
+     * @throws \UIS\Core\File\Exceptions\FileNotFoundException
      */
-    public static function getTempImage($id)
+    public static function getTempImage($id, $findOrFail = true, $checkUser = true)
     {
-        return self::getTempFile($id);
+        $file= self::getTempFile($id, $findOrFail, $checkUser);
+        if (!$file) {
+            return null;
+        }
+        if ($file->getUploaderType() !== self::TYPE) {
+            if ($findOrFail) {
+                throw new FileNotFoundException();
+            }
+            return null;
+        }
+        return $file;
     }
 
     /******************************************************************************************************************/
@@ -116,7 +133,7 @@ class Uploader extends FileUploader
 
     /**
      * @param string $image
-     * @return \UIS\Core\File\UploadedFile
+     * @return int
      * @throws Exception
      * @throws ImageNotFoundException
      * @throws \Exception
@@ -137,23 +154,32 @@ class Uploader extends FileUploader
 
         $userId = Auth::user()->id;
         $id = DB::table('uploaded_files')->insertGetId([
-            'file_object' => '',
+            'file_data' => '',
             'created_at' => new Carbon(),
             'uploader_key' => $this->getUploaderKey(),
             'uploader_type' => $this->getUploaderType(),
             'uploaded_by_id' => $userId
         ]);
-        $uploadedFile = $uploadedFile->move($moveToTempDirectory, $id . '.' . $extension);
-        $uploadedFile->setId($id);
-        $uploadedFile->setUserId($userId);
+
+        $fileData = [
+            'id' => $id,
+            'client_original_name' => $uploadedFile->getClientOriginalName(),
+            'client_size' => $uploadedFile->getClientSize(),
+            'client_type' => $uploadedFile->getClientMimeType(),
+            'created_at' => new Carbon(),
+            'uploader_key' => $this->getUploaderKey(),
+            'uploader_type' => $this->getUploaderType(),
+            'uploaded_by_id' => $userId
+        ];
+        $fileData['file_path'] = $uploadedFile->move($moveToTempDirectory, $id . '.' . $extension);
 
         DB::table('uploaded_files')
             ->where('id', $id)
             ->update([
-                'file_object' => serialize($uploadedFile),
+                'file_data' => serialize($fileData),
                 'file_path' => $tempSubDirFolder . '/' .  $id . '.' . $extension
             ]);
-        return $uploadedFile;
+        return $id;
     }
 
 

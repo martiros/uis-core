@@ -1,6 +1,8 @@
 <?php namespace UIS\Core\File;
 
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile as SymphonyUploadedFile;
+use Symfony\Component\HttpFoundation\File\File as SymphonyFile;
 use JsonSerializable;
 
 class UploadedFile implements JsonSerializable
@@ -13,6 +15,10 @@ class UploadedFile implements JsonSerializable
     protected $id = null;
 
     protected $userId = null;
+
+    protected $uploaderKey = null;
+
+    protected $uploaderType = null;
 
     public function __construct(SymphonyUploadedFile $file)
     {
@@ -40,14 +46,48 @@ class UploadedFile implements JsonSerializable
         $this->id = $id;
     }
 
-    public function setUserId()
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
+    }
+
+    public function getUserId()
     {
         return $this->userId;
+    }
+
+    public function setUploaderKey($uploaderKey)
+    {
+        $this->uploaderKey = $uploaderKey;
+    }
+
+    public function getUploaderKey()
+    {
+        return $this->uploaderKey;
+    }
+
+    public function setUploaderType($uploaderType)
+    {
+        $this->uploaderType = $uploaderType;
+    }
+
+    public function getUploaderType()
+    {
+        return $this->uploaderType;
     }
 
     public function getPathname()
     {
         return $this->file->getPathname();
+    }
+
+    protected function getName($name)
+    {
+        $originalName = str_replace('\\', '/', $name);
+        $pos = strrpos($originalName, '/');
+        $originalName = false === $pos ? $originalName : substr($originalName, $pos + 1);
+
+        return $originalName;
     }
 
     public function getSize()
@@ -61,6 +101,11 @@ class UploadedFile implements JsonSerializable
     public function getMimeType()
     {
         return $this->file->getMimeType();
+    }
+
+    public function getExtension()
+    {
+        return $this->file->getExtension();
     }
 
     /**
@@ -100,19 +145,42 @@ class UploadedFile implements JsonSerializable
     /**
      * @param string $directory
      * @param string $name
-     * @return \UIS\Core\File\UploadedFile
+     * @return string Return file new destination
      */
     public function move($directory, $name = null)
     {
         $target = $this->file->move($directory, $name);
-        return new UploadedFile(
-            new SymphonyUploadedFile(
-                $target,
-                $this->getClientOriginalName(),
-                $this->getClientMimeType(),
-                $this->getClientSize()
-            )
-        );
+        return $target->getPathname();
+    }
+
+    public function save($directory, $name)
+    {
+        $target = $this->getTargetFile($directory, $name);
+
+        if (!@rename($this->getPathname(), $target)) {
+            $error = error_get_last();
+            throw new FileException(sprintf('Could not move the file "%s" to "%s" (%s)', $this->getPathname(), $target, strip_tags($error['message'])));
+        }
+
+        @chmod($target, 0666 & ~umask());
+
+        // @TODO: Remove file from database
+        return $target;
+    }
+
+    protected function getTargetFile($directory, $name = null)
+    {
+        if (!is_dir($directory)) {
+            if (false === @mkdir($directory, 0777, true)) {
+                throw new FileException(sprintf('Unable to create the "%s" directory', $directory));
+            }
+        } elseif (!is_writable($directory)) {
+            throw new FileException(sprintf('Unable to write in the "%s" directory', $directory));
+        }
+
+        $target = rtrim($directory, '/\\').DIRECTORY_SEPARATOR.(null === $name ? $this->getBasename() : $this->getName($name));
+
+        return new SymphonyFile($target, false);
     }
 
     public function jsonSerialize()

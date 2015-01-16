@@ -67,6 +67,7 @@ class Handler extends ExceptionHandler
         if (!App::environment('production') || true) {
             $data['debug_info'] = array(
                 'message' => get_class($e) . ': ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine(),
+                'trace' => $e->getTraceAsString(),
                 'request_url' => Request::url(),
                 'request_method' => Request::method(),
                 'get' => $_GET,

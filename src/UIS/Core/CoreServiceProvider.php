@@ -77,9 +77,8 @@ class CoreServiceProvider extends ServiceProvider
 //        );
 
         register_shutdown_function(function () {
-//            uis_dump( app(), \TestCase::$appInstance );
-//            $_SERVER['APP_END_TIME_FLOAT'] = microtime(true);
-//            app('uis.app')->profileEnd();
+            $_SERVER['APP_END_TIME_FLOAT'] = microtime(true);
+            app('uis.app')->profileEnd();
         });
 
     }
