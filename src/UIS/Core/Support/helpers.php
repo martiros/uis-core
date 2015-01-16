@@ -31,8 +31,7 @@ function uis_dump()
 
 function images_path()
 {
-    // @TODO: Hardcode, remove htdocs
-    return base_path() . '/' . 'htdocs' . '/' . 'images';
+    return public_path() . '/' . 'images';
 }
 
 /**********************************************************************************************************************/
