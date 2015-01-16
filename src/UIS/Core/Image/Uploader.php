@@ -115,7 +115,7 @@ class Uploader extends FileUploader
     public static function getTempImage($id, $findOrFail = true, $checkUser = true)
     {
         $file= self::getTempFile($id, $findOrFail, $checkUser);
-        if (!$file) {
+        if (empty($file)) {
             return null;
         }
         if ($file->getUploaderType() !== self::TYPE) {
