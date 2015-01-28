@@ -38,12 +38,23 @@ class Application
 
     public function profileEnd()
     {
+        if (!$this->profileStarted) {
+            return;
+        }
         $url = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'cron';
         $includedFiles = get_included_files();
         $runDate = new DateTime();
         $runDate->setTimestamp($_SERVER['REQUEST_TIME_FLOAT']);
+
         $this->profileLog .= 'Includes files'.PHP_EOL;
         $this->profileLog .= print_r($includedFiles, true);
+
+        $this->profileLog .= 'POST Data'.PHP_EOL;
+        $this->profileLog .= print_r($_POST, true);
+
+        $this->profileLog .= 'SERVER Data'.PHP_EOL;
+        $this->profileLog .= print_r($_SERVER, true);
+
         DB::table('app_profile')->insert(
             array(
                 'url' => $url,

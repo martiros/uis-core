@@ -43,9 +43,9 @@ function show_date(DateTime $date, $showTime=true)
     return $date->format('H:i d/m/Y');
 }
 
-function script($path)
+function script($file, $minGroup = 'default', $attributes = ['type' => 'text/javascript'])
 {
-    \UIS\Helper\HeadScript::getInstance()->appendFile($path);
+    app()->make('uis.core.page.scripts')->appendFile($file, $minGroup, $attributes);
 }
 
 function sc_attr($attr)

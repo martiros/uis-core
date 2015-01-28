@@ -1,20 +1,32 @@
-<?php namespace UIS\Core\Exceptions;
+<?php
+namespace UIS\Core\Exceptions;
 
-
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Request;
-use UIS\Core\Exceptions\Exception as UISException;
-use UIS\Core\Controllers\BaseControllerTrait;
-use App, Log, Session;
+use App;
+use Config;
 use Exception as PHPException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Request;
+use Log;
+use Session;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use UIS\Core\Controllers\BaseControllerTrait;
+use UIS\Core\Exceptions\Exception as UISException;
 
 class Handler extends ExceptionHandler
 {
     use BaseControllerTrait;
 
     protected $exception = null;
+
+    protected $httpCodeToStatusMap = [
+        '400' => 'BAD_REQUEST',
+        '401' => 'NOT_AUTH',
+        '403' => 'FORBIDDEN',
+        '404' => 'NOT_FOUND',
+        '405' => 'METHOD_NOT_ALLOWED',
+        '500' => 'APP_ERROR',
+        '503' => 'MAINTENANCE_MODE',
+    ];
 
     /**
      * A list of the exception types that should not be reported.
@@ -25,36 +37,22 @@ class Handler extends ExceptionHandler
         'Symfony\Component\HttpKernel\Exception\HttpException'
     ];
 
-    /**
-     * Report or log an exception.
-     *
-     * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
-     *
-     * @param  \Exception  $e
-     * @return void
-     */
     public function report(PHPException $e)
     {
-        return parent::report($e);
+        // do not report, check is needed report on redering
     }
 
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $e
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Exception $e
      * @return \Illuminate\Http\Response
      */
     public function render($request, PHPException $e)
     {
-//        die( get_class($e) . ': ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine() );
+        $e = new PHPException();
 
-        if ($this->isHttpException($e))
-        {
-            return $this->renderHttpException($e);
-        }
-
-//        $e = new \UIS\Core\Exceptions\MaintenanceModeException();
         $exceptionData = $this->getExceptionData($e);
         $data = [];
         if (!empty($exceptionData['message'])) {
@@ -63,8 +61,7 @@ class Handler extends ExceptionHandler
             );
         }
 
-
-        if (!App::environment('production') || true) {
+        if (Config::get('app.debug')) {
             $data['debug_info'] = array(
                 'message' => get_class($e) . ': ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine(),
                 'trace' => $e->getTraceAsString(),
@@ -78,17 +75,7 @@ class Handler extends ExceptionHandler
         }
 
         if ($exceptionData['log'] === true) {
-            Log::critical(
-                get_class($e),
-                array(
-                    'ex' => $e,
-                    'get' => $_GET,
-                    'post' => $_POST,
-                    'server' => $_SERVER,
-                    'cookie' => $_COOKIE,
-                    'session' => Session::all(),
-                )
-            );
+            $this->logException($e);
         }
 
 //        $data = [
@@ -107,9 +94,9 @@ class Handler extends ExceptionHandler
 
 //        uis_dump('B-'.get_class($e), $data, $exceptionData);
 
-        if (intval($exceptionData['http_status_code'] / 100) === 5) {
-            $exceptionData['http_status_code'] = '200';
-        }
+        /***********************************************************************************************/
+        /***********************************************************************************************/
+        /***********************************************************************************************/
 
         $data = !empty($data) ? $data : null;
         return $this->api(
@@ -119,10 +106,27 @@ class Handler extends ExceptionHandler
             $exceptionData['http_status_code'],
             $exceptionData['http_headers']
         );
-
-        //              return parent::render($request, $e);
     }
 
+    protected function logException(PHPException $e)
+    {
+//        uis_dump($e->getTraceAsString());
+
+
+        Log::critical(
+            get_class($e) . ' fsdb df fd df     vdsvd ',
+            array(
+                'ex' => $e,
+                'get' => $_GET,
+                'post' => $_POST,
+                'server' => $_SERVER,
+                'cookie' => $_COOKIE,
+                'session' => Session::all(),
+            )
+        );
+
+
+    }
 
     protected function getExceptionData(PHPException $ex)
     {
@@ -155,6 +159,10 @@ class Handler extends ExceptionHandler
             }
 
             $useDefault = $ex->useDefault();
+        } else {
+            if ($ex instanceof HttpException) {
+                $exceptionData['http_status_code'] = $ex->getStatusCode();
+            }
         }
 
         if ($useDefault) {
@@ -181,6 +189,13 @@ class Handler extends ExceptionHandler
     protected function getExceptionDefaultData(PHPException $ex)
     {
         $errorCodes = $this->getErrorCodes();
+        if ($ex instanceof HttpException) {
+            $code = $ex->getStatusCode();
+            if (isset($this->httpCodeToStatusMap[$code])) {
+                return $errorCodes[$this->httpCodeToStatusMap[$code]]['data'];
+            }
+        }
+
         $exceptionData = null;
         foreach ($errorCodes as $errorOptions) {
             if (!isset($errorOptions['exception_types'])) {
@@ -192,7 +207,7 @@ class Handler extends ExceptionHandler
                 }
             }
         }
-        return $errorCodes['APP_ERROR'];
+        return $errorCodes['APP_ERROR']['data'];
     }
 
     private function getErrorCodes()
@@ -203,9 +218,9 @@ class Handler extends ExceptionHandler
             'data' => array(
                 'status' => 'NOT_FOUND',
                 'http_status_code' => '404',
-                'message' => array( // @TODO: Translate this
-                    'title' => 'message title',
-                    'body' => 'message body'
+                'message' => array(
+                    'title' => trans('uis_core.error.not_found.title'),
+                    'body' => trans('uis_core.error.not_found.body')
                 )
             ),
             'exception_types' => array(
@@ -219,9 +234,9 @@ class Handler extends ExceptionHandler
             'data' => array(
                 'status' => 'FORBIDDEN',
                 'http_status_code' => '403',
-                'message' => array( // @TODO: Translate this
-                    'title' => 'message title',
-                    'body' => 'message body'
+                'message' => array(
+                    'title' => trans('uis_core.error.forbidden.title'),
+                    'body' => trans('uis_core.error.forbidden.body')
                 )
             ),
             'exception_types' => array(
@@ -233,9 +248,9 @@ class Handler extends ExceptionHandler
             'data' => array(
                 'status' => 'NOT_AUTH',
                 'http_status_code' => '401',
-                'message' => array( // @TODO: Translate this
-                    'title' => 'message title',
-                    'body' => 'message body'
+                'message' => array(
+                    'title' => trans('uis_core.error.not_auth.title'),
+                    'body' => trans('uis_core.error.not_auth.body')
                 )
             ),
             'exception_types' => array(
@@ -247,9 +262,9 @@ class Handler extends ExceptionHandler
             'data' => array(
                 'status' => 'BAD_REQUEST',
                 'http_status_code' => '400',
-                'message' => array( // @TODO: Translate this
-                    'title' => 'message title',
-                    'body' => 'message body'
+                'message' => array(
+                    'title' => trans('uis_core.error.bad_request.title'),
+                    'body' => trans('uis_core.error.bad_request.body')
                 )
             ),
             'exception_types' => array(
@@ -257,13 +272,16 @@ class Handler extends ExceptionHandler
             )
         );
 
+
+        $maintenanceModeException = new MaintenanceModeException();
         $errorCodes['MAINTENANCE_MODE'] = array(
             'data' => array(
                 'status' => 'MAINTENANCE_MODE',
                 'http_status_code' => '503',
-                'message' => array( // @TODO: Translate this
-                    'title' => 'message title',
-                    'body' => 'message body'
+                'http_headers' => $maintenanceModeException->getHttpHeaders(),
+                'message' => array(
+                    'title' => trans('uis_core.error.maintenance_mode.title'),
+                    'body' => trans('uis_core.error.maintenance_mode.body')
                 )
             ),
             'exception_types' => array(
@@ -275,9 +293,9 @@ class Handler extends ExceptionHandler
             'data' => array(
                 'status' => 'TOKEN_MISMATCH',
                 'http_status_code' => '200',
-                'message' => array( // @TODO: Translate this
-                    'title' => 'message title',
-                    'body' => 'message body'
+                'message' => array(
+                    'title' => trans('uis_core.error.token_mismatch.title'),
+                    'body' => trans('uis_core.error.token_mismatch.body')
                 )
             ),
             'exception_types' => array(
@@ -289,9 +307,9 @@ class Handler extends ExceptionHandler
             'data' => array(
                 'status' => 'METHOD_NOT_ALLOWED',
                 'http_status_code' => '405',
-                'message' => array( // @TODO: Translate this
-                    'title' => 'message title',
-                    'body' => 'message body'
+                'message' => array(
+                    'title' => trans('uis_core.error.method_not_allowed.title'),
+                    'body' => trans('uis_core.error.method_not_allowed.body')
                 )
             ),
             'exception_types' => array(
@@ -304,9 +322,9 @@ class Handler extends ExceptionHandler
             'data' => array(
                 'status' => 'APP_ERROR',
                 'http_status_code' => '500',
-                'message' => array( // @TODO: Translate this
-                    'title' => 'message title',
-                    'body' => 'message body'
+                'message' => array(
+                    'title' => trans('uis_core.error.app_error.title'),
+                    'body' => trans('uis_core.error.app_error.body')
                 ),
                 'log' => true
             ),
@@ -315,8 +333,6 @@ class Handler extends ExceptionHandler
                 '\UIS\Core\Exceptions\Exception',
             )
         );
-
         return $errorCodes;
     }
-
 }

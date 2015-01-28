@@ -1,12 +1,12 @@
-<?php
+<?php  namespace UIS\Core\Page;
 
-namespace UIS\Core\Page;
+use UIS\Core\Page\ScriptsContract;
 
 class PageContainer
 {
-    private static $scTitle = true;
-    public static $title = null;
+    protected $translates = [];
 
+    private static $scTitle = true;
 
     public function title($title = null, $scString = true)
     {
@@ -17,14 +17,126 @@ class PageContainer
         self::$scTitle = $scString;
     }
 
-    public static function url($url, $appendBasePath=true)// fixme
+
+    public function addTrans($trans)
+    {
+        if (is_array($trans)) {
+            $this->translates = array_merge($this->translates, array_flip($trans));
+        } else {
+            $this->translates[$trans] = true;
+        }
+    }
+
+    public function getTrans()
+    {
+        $trans = [];
+        foreach ($this->translates as $transKey => $value) {
+            $trans[$transKey] = trans($transKey);
+        }
+        return $trans;
+    }
+
+    public function setPageData()
+    {
+        ?>
+            <script type="application/javascript" >
+                var $locSettings = {};
+                $locSettings.transData = <?= json_encode($this->getTrans())?>;
+            </script>
+        <?php
+    }
+
+
+    /**********************************************************************************************************************/
+    /**********************************************************************************************************************/
+    /**********************************************************************************************************************/
+
+    /**
+     * @var string
+     */
+    protected $title = null;
+
+    /**
+     * @var string
+     */
+    protected $url = null;
+
+    /**
+     * @var array
+     */
+    protected $ogData = array();
+
+    /**
+     * @param ScriptsContract $scripts\
+     */
+    public function __construct()
     {
 
     }
 
+    /**
+     * @param string $url
+     * @param bool $appendBasePath
+     */
+    public function url($url, $appendBasePath = false)
+    {
+        if ($appendBasePath) {
+            $url = url($url);
+        }
+        $this->url = $url;
+        if (!isset($this->ogData['url'])) {
+            $this->og('url', $url);
+        }
+    }
+
+    public function scripts()
+    {
+        return app('uis.core.page.scripts');
+    }
+
+    /**
+     * @param string $key
+     * @param string $content
+     * @param bool $sc
+     * @return string
+     */
+    public function og($key, $content = null, $sc = true)
+    {
+        if ($key === null) {
+            if (isset($this->ogData[$key])) {
+                return $this->ogData[$key]['value'];
+            }
+            return null;
+        }
+        $this->ogData[$key] = array(
+            'value' => $content,
+            'sc' => $sc
+        );
+    }
+
+    public function generatePageHeadData()
+    {
+        $headData = '';
+        if ($this->url !== null) {
+            $headData .= "\n\t<link rel=\"canonical\" href=\"".sc_attr($this->url)."\"/>";
+        }
+
+        $headData .= $this->scripts()->generate();
+        return $headData."\n";
+    }
+
+    public function generateOgData()
+    {
+        $ogData = '';
+        foreach ($this->ogData as $ogKey => $data) {
+            $content = $data['sc'] ? sc_attr($data['value']) : sc_attr($data['value']);
+            $ogData .= "\n\t<meta property=\"og:{$ogKey}\" content=\"".$content."\" />";
+        }
+        return $ogData."\n";
+    }
 }
 
-
+/*
 
 class  Core_Helper_Head_Style {
 
@@ -51,11 +163,6 @@ class  Core_Helper_Head_Style {
     }
 
 
-    /**
-     *  Remove  style file
-     *	@param   string   $href
-     *  @return  boolean  true if file removed, else return false
-     */
     public function removeFile( $href ) {
         if( isset(  $this->filesData[ $href ]  ) ){
             unset( $this->filesData[ $href ] );
@@ -64,13 +171,6 @@ class  Core_Helper_Head_Style {
         return false;
     }
 
-    /**
-     *  Prepend  style file
-     *	@param   string 	  $href
-     *  @param   string 	  $type
-     *  @param   array        $attrs
-     *  @return  void
-     */
     public function prependFile( $href , $minGroup = 'default', $type = 'text/css', $attrs = array( 'rel' => 'stylesheet' ) ) {
 
         $oldData = array();
@@ -88,14 +188,6 @@ class  Core_Helper_Head_Style {
     }
 
 
-    /**
-     *  Prepend  style file
-     *	@param   string 	  $href
-     *	@param   boolean	  $checkDate
-     *  @param   string 	  $type
-     *  @param   array        $attrs
-     *  @return  void
-     */
     public function appendFile( $href  , $minGroup = 'default',  $type = 'text/css', $attrs = array( 'rel' => 'stylesheet' ) ){
         $this->filesData[ $href ] = array (
             'href'			=> 		$this->getAppendPath().$href,
@@ -105,9 +197,6 @@ class  Core_Helper_Head_Style {
         );
     }
 
-    /**
-     * @return boolean
-     */
     public function isSetFile( $src ) {
         if ( isset( $this->filesData[ $src ] ) ) {
             return true;
@@ -119,9 +208,7 @@ class  Core_Helper_Head_Style {
         return $this->cacheVersion;
     }
 
-    /**
-     * @return string
-     */
+
     public function generate() {
 
         if (  $this->minify === true ) {
@@ -193,3 +280,6 @@ class  Core_Helper_Head_Style {
     }
 
 }
+
+*/
+

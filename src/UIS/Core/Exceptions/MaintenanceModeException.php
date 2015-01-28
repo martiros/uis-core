@@ -10,10 +10,9 @@ class MaintenanceModeException extends Exception
 
     public function getMessageData()
     {
-        // @TODO - Translate
         return array(
-            'title' => 'Service Temporarily Unavailable',
-            'body' => 'Service Temporarily Unavailable',
+            'title' => trans('uis_core.error.maintenance_mode.title'),
+            'body' => trans('uis_core.error.maintenance_mode.body')
         );
     }
 

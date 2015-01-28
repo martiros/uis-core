@@ -1,5 +1,4 @@
 <?php
-
 namespace UIS\Core\Locale;
 
 use Config, App, DateTime, Request, DB;

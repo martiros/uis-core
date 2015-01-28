@@ -1,17 +1,14 @@
 <?php
-
 namespace UIS\Core\Exceptions;
-
-use \UIS\Core\Exceptions\CatchableException;
 
 class NotFoundException extends CatchableException
 {
     public function getMessageData()
     {
-        return array( // @TODO: Translate this
-            'title' => 'message title',
-            'body' => 'message body'
-        );
+        return [
+            'title' => trans('uis_core.error.not_found.title'),
+            'body' => trans('uis_core.error.not_found.body')
+        ];
     }
 
     public function getStatus()

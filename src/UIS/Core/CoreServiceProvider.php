@@ -95,7 +95,7 @@ class CoreServiceProvider extends ServiceProvider
             function ($app) {
                 $path = Config::get('app.lang_path');
                 if (empty($path)) {
-                    $path = $app['path'] . '/lang';
+                    return new \Illuminate\Translation\FileLoader($app['files'], $path);
                 }
                 return new \UIS\Core\Locale\JsFileLoader($app['files'], $path);
             }

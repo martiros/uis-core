@@ -6,9 +6,9 @@ class InvalidDataException extends Exception
 {
     public function getMessageData()
     {
-        return array( // @TODO: Translate this
-            'title' => 'message title',
-            'body' => 'message body'
+        return array(
+            'title' => trans('uis_core.error.bad_request.title'),
+            'body' => trans('uis_core.error.bad_request.body')
         );
     }
 

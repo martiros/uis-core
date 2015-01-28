@@ -1,15 +1,13 @@
-<?php
-
-namespace UIS\Core\Exceptions;
+<?php namespace UIS\Core\Exceptions;
 
 class PermissionDeniedException extends Exception
 {
     public function getMessageData()
     {
-        return array( // @TODO: Translate this
-            'title' => 'message title',
-            'body' => 'message body'
-        );
+        return [
+            'title' => trans('uis_core.error.forbidden.title'),
+            'body' => trans('uis_core.error.forbidden.body')
+        ];
     }
 
     public function getStatus()

@@ -19,14 +19,9 @@ class PageServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(
-            'page',
-            function () {
-                return new PageContainer();
-            }
-        );
+        $this->app->singleton('page', 'UIS\Core\Page\PageContainer');
+        $this->app->singleton('uis.core.page.scripts', 'UIS\Core\Page\Scripts');
     }
-
 
     /**
      * Get the services provided by the provider.
@@ -35,7 +30,7 @@ class PageServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array('page');
+        return array('page', 'uis.core.page.scripts');
     }
 
 }
