@@ -2,6 +2,7 @@
 namespace UIS\Core\Exceptions;
 
 use App;
+use Auth;
 use Config;
 use Exception as PHPException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -51,7 +52,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, PHPException $e)
     {
-        $e = new PHPException();
+//        $e = new NotSupportedVersionException();
 
         $exceptionData = $this->getExceptionData($e);
         $data = [];
@@ -62,41 +63,12 @@ class Handler extends ExceptionHandler
         }
 
         if (Config::get('app.debug')) {
-            $data['debug_info'] = array(
-                'message' => get_class($e) . ': ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-                'request_url' => Request::url(),
-                'request_method' => Request::method(),
-                'get' => $_GET,
-                'post' => $_POST,
-                'cookies' => $_COOKIE,
-                'headers' => Request::header()
-            );
+            $data['debug_info'] = $this->getLogData($e);
         }
 
         if ($exceptionData['log'] === true) {
             $this->logException($e);
         }
-
-//        $data = [
-//            'context' => $context,
-//            'user_id' => Auth::check() ? Auth::user()->id : 0,
-//            'user_name' => Auth::check() ? Auth::user()->getDisplayName() : '',
-//            'url' => Request::url(),
-//            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
-//            'ip' => Request::getClientIp(),
-//            'count' => $count,
-//            'code' => $code
-//        ];
-//
-//        Log::error($error, $data);
-
-
-//        uis_dump('B-'.get_class($e), $data, $exceptionData);
-
-        /***********************************************************************************************/
-        /***********************************************************************************************/
-        /***********************************************************************************************/
 
         $data = !empty($data) ? $data : null;
         return $this->api(
@@ -110,22 +82,25 @@ class Handler extends ExceptionHandler
 
     protected function logException(PHPException $e)
     {
-//        uis_dump($e->getTraceAsString());
+        $logData = $this->getLogData($e);
+        Log::critical('Log ID-' . md5(uniqid(true) . microtime(true)), $logData);
+    }
 
-
-        Log::critical(
-            get_class($e) . ' fsdb df fd df     vdsvd ',
-            array(
-                'ex' => $e,
-                'get' => $_GET,
-                'post' => $_POST,
-                'server' => $_SERVER,
-                'cookie' => $_COOKIE,
-                'session' => Session::all(),
-            )
-        );
-
-
+    protected function getLogData(PHPException $e)
+    {
+        return [
+            'message' => get_class($e) . ': ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine(),
+            'trace' => $e->getTraceAsString(),
+            'request_url' => Request::url(),
+            'request_method' => Request::method(),
+            'get' => $_GET,
+            'post' => $_POST,
+            'headers' => Request::header(),
+            'cookies' => $_COOKIE,
+            'session' => Session::all(),
+            'ip' => Request::getClientIp(),
+            'user_logged_in' => Auth::check(),
+        ];
     }
 
     protected function getExceptionData(PHPException $ex)

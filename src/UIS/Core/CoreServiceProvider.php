@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use App;
+use Monolog\Formatter\JsonFormatter;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -21,8 +24,9 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->registerLogger();
 //        $this->package('u-is/core');
-        require_once __DIR__.'/../../routes.php';
+        require_once __DIR__ . '/../../routes.php';
     }
 
     /**
@@ -69,17 +73,21 @@ class CoreServiceProvider extends ServiceProvider
         }
 //        App::before(
 //            function () {
-                \Carbon\Carbon::setToStringFormat(\Carbon\Carbon::ISO8601);
-                $_SERVER['REQUEST_TIME_FLOAT'] = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : microtime(true);
-                $_SERVER['APP_START_TIME_FLOAT'] = microtime(true);
-                app('uis.app')->profileStart();
+        \Carbon\Carbon::setToStringFormat(\Carbon\Carbon::ISO8601);
+        $_SERVER['REQUEST_TIME_FLOAT'] = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : microtime(
+            true
+        );
+        $_SERVER['APP_START_TIME_FLOAT'] = microtime(true);
+        app('uis.app')->profileStart();
 //            }
 //        );
 
-        register_shutdown_function(function () {
-            $_SERVER['APP_END_TIME_FLOAT'] = microtime(true);
-            app('uis.app')->profileEnd();
-        });
+        register_shutdown_function(
+            function () {
+                $_SERVER['APP_END_TIME_FLOAT'] = microtime(true);
+                app('uis.app')->profileEnd();
+            }
+        );
 
     }
 
@@ -112,4 +120,18 @@ class CoreServiceProvider extends ServiceProvider
         return array('translator', 'translation.loader', 'uis.app');
     }
 
+    protected function registerLogger()
+    {
+        App::resolving(
+            function (Logger $monolog, $app) {
+                $handlers = $monolog->getHandlers();
+                foreach ($handlers as $handler) {
+                    if (!$handler instanceof StreamHandler) {
+                        continue;
+                    }
+                    $handler->setFormatter(new JsonFormatter(JsonFormatter::BATCH_MODE_JSON, true));
+                }
+            }
+        );
+    }
 }
