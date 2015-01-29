@@ -1,13 +1,8 @@
-<?php namespace UIS\Core\Image\Exceptions;
+<?php
+namespace UIS\Core\Image\Exceptions;
 
-use UIS\Core\Exceptions\NotFoundException;
+use UIS\Core\File\Exceptions\FileNotFoundException;
 
-class ImageNotFoundException extends NotFoundException
+class ImageNotFoundException extends FileNotFoundException
 {
-    protected $errorKey = null;
-
-    public function setErrorKey($errorKey)
-    {
-        $this->errorKey = $errorKey;
-    }
 }

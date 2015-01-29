@@ -10,4 +10,5 @@ Route::get('/api/core/dictionary/mobile', array('uses' => $uisControllers.'Confi
 //
 
 Route::post('/api/media/imageUploader/upload', array('uses' => $uisControllers.'ImageUploaderController@upload'));
+Route::post('/api/media/fileUploader/upload', array('uses' => $uisControllers.'FileUploaderController@upload'));
 
