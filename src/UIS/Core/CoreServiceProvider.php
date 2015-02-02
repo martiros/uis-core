@@ -6,6 +6,7 @@ use App;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use UIS\Core\Locale\LanguageManager;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -48,7 +49,7 @@ class CoreServiceProvider extends ServiceProvider
                 // configuration so we can easily get both of these values from there.
                 $locale = $app['config']['app.locale'];
 
-                $trans = new \UIS\Core\Locale\Language($loader, $locale);
+                $trans = new LanguageManager($loader, $locale);
 
                 $trans->setFallback($app['config']['app.fallback_locale']);
 

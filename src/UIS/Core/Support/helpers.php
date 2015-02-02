@@ -27,6 +27,11 @@ function uis_dump()
     die();
 }
 
+function uis_app_name()
+{
+    return app('uis.app')->getName();
+}
+
 // Storage functions
 
 function images_path()

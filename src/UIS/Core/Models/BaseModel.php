@@ -25,7 +25,7 @@ abstract class BaseModel extends \Illuminate\Database\Eloquent\Model
 
     public function scopeCLng($query)
     {
-        return $query->where('lng_id', Lang::cLng('id'));
+        return $query->where('lng_id', Lang::language()->id);
     }
 
     public function scopeActive($query)

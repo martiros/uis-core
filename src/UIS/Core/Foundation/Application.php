@@ -92,4 +92,10 @@ class Application
         $profileStr = "QUERY - {$sql}, bindings - ".json_encode($bindings).', duration - '.$time;
         $this->profile($profileStr);
     }
+
+    public function getName()
+    {
+        $appName = Config::get('app.uis_app_name');
+        return $appName ?: 'application';
+    }
 }

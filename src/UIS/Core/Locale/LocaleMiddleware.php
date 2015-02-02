@@ -3,6 +3,7 @@ namespace UIS\Core\Locale;
 
 use Closure;
 use Illuminate\Contracts\Routing\Middleware;
+use Lang;
 
 class LocaleMiddleware implements Middleware
 {
@@ -15,9 +16,7 @@ class LocaleMiddleware implements Middleware
      */
     public function handle($request, Closure $next)
     {
-//        echo $request->getRequestUri();
-//
-//        die();
+        Lang::detectLanguage();
         return $next($request);
     }
 }
