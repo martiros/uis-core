@@ -2,6 +2,7 @@
 
 use Auth;
 use DB;
+use UIS\Core\File\UploadedFile;
 use UIS\Core\File\Uploader as FileUploader;
 use UIS\Core\File\Exceptions\FileNotFoundException;
 
