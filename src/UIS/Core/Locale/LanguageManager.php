@@ -81,6 +81,34 @@ class LanguageManager extends Translator
         }
     }
 
+    protected function makeReplacements($line, array $replace)
+    {
+        $replace = $this->sortReplacements($replace);
+
+        foreach ($replace as $key => $value) {
+            if (!is_string($value)) {
+                continue;
+            }
+            $line = str_replace(':' . $key, $value, $line);
+        }
+
+        return $line;
+    }
+
+    /**
+     * Sort the replacements array.
+     *
+     * @param  array  $replace
+     * @return array
+     */
+    protected function sortReplacements(array $replace)
+    {
+        $replace = array_filter($replace, function($r){
+            return is_string($r);
+        });
+        return parent::sortReplacements($replace);
+    }
+
     protected function addNotDefinedKeyword($namespace, $group, $key)
     {
         if ($this->notDefinedKeywords === null) {
