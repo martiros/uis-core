@@ -152,7 +152,7 @@ class Uploader
      * @throws ImageNotFoundException
      * @throws \Exception
      */
-    public function saveToTemp($image = 'image')
+    public function saveToTemp($image = 'file')
     {
         // FIXME: Check $_FILES['file']['error'] codes !!!
 
