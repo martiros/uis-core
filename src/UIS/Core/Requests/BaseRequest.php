@@ -47,6 +47,11 @@ abstract class BaseRequest extends FormRequest
     {
         $validatorInstance = $this->getValidatorInstance();
         $this->validationResult = $validationResult = $validatorInstance->validate();
+
+        if ($validationResult->isValid()) {
+            $this->success();
+        }
+
         if ($validationResult->isValid()) {
             $this->validatedData = $validatorInstance->getData();
             return true;
@@ -63,6 +68,11 @@ abstract class BaseRequest extends FormRequest
 //        {
 //
 //        }
+    }
+
+    protected function success()
+    {
+
     }
 
     /**
