@@ -13,7 +13,7 @@ class ImageUploaderController extends BaseController
     public function upload()
     {
         $imageUploader = new Uploader();
-        $uploadedFileId = $imageUploader->saveToTemp();
+        $uploadedFileId = $imageUploader->saveToTemp('image');
 
         return $this->api(
             'OK',

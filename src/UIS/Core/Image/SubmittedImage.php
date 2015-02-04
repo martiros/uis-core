@@ -1,6 +1,7 @@
 <?php
 namespace UIS\Core\Image;
 
+use UIS\Core\File\SubmittedFile;
 use UIS\Core\File\UploadedTempFile;
 
 class SubmittedImage extends SubmittedFile
