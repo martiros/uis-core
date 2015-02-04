@@ -86,7 +86,7 @@ class LanguageManager extends Translator
         $replace = $this->sortReplacements($replace);
 
         foreach ($replace as $key => $value) {
-            if (!is_string($value)) {
+            if (!$this->canConvertToString($value)) {
                 continue;
             }
             $line = str_replace(':' . $key, $value, $line);
@@ -98,15 +98,29 @@ class LanguageManager extends Translator
     /**
      * Sort the replacements array.
      *
-     * @param  array  $replace
+     * @param  array $replace
      * @return array
      */
     protected function sortReplacements(array $replace)
     {
-        $replace = array_filter($replace, function($r){
-            return is_string($r);
-        });
+        $replace = array_filter(
+            $replace,
+            function ($r) {
+                return $this->canConvertToString($r);
+            }
+        );
         return parent::sortReplacements($replace);
+    }
+
+    protected function canConvertToString($item)
+    {
+        if ( (!is_array($item)) &&
+             ((!is_object($item) && settype($item, 'string') !== false) ||
+             (is_object($item) && method_exists($item, '__toString')))
+        ) {
+            return true;
+        }
+        return false;
     }
 
     protected function addNotDefinedKeyword($namespace, $group, $key)
