@@ -126,11 +126,13 @@ class LanguageManager extends Translator
     protected function addNotDefinedKeyword($namespace, $group, $key)
     {
         if ($this->notDefinedKeywords === null) {
-            register_shutdown_function(
-                function () {
-                    $this->logNotDefinedKeywords();
-                }
-            );
+            if (App::environment() !== 'testing') {
+                register_shutdown_function(
+                    function () {
+                        $this->logNotDefinedKeywords();
+                    }
+                );
+            }
             $this->notDefinedKeywords = array();
         }
         $appName = Config::get('app.name');
