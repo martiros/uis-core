@@ -33,6 +33,12 @@ abstract class BaseModel extends \Illuminate\Database\Eloquent\Model
         return $query->where('show_status', BaseModel::STATUS_ACTIVE);
     }
 
+    public function scopeOrdered($query, $mode = 'ASC')
+    {
+        return $query->orderBy('sort_order', $mode)->orderBy('id', 'DESC');
+    }
+
+
 //    protected function asDateTime($value)
 //    {
 //        die();
