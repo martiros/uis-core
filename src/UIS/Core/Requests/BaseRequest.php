@@ -48,8 +48,12 @@ abstract class BaseRequest extends FormRequest
         $validatorInstance = $this->getValidatorInstance();
         $this->validationResult = $validationResult = $validatorInstance->validate();
 
+        $this->processed();
+
         if ($validationResult->isValid()) {
             $this->success();
+        } else {
+            $this->failed();
         }
 
         if ($validationResult->isValid()) {
@@ -71,6 +75,16 @@ abstract class BaseRequest extends FormRequest
     }
 
     protected function success()
+    {
+
+    }
+
+    protected function processed()
+    {
+
+    }
+
+    protected function failed()
     {
 
     }
