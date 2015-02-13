@@ -19,6 +19,8 @@ abstract class BaseRequest extends FormRequest
 
     protected $validatedData = null;
 
+    protected $validatorInstance = null;
+
     /**
      * @var \UIS\Mvf\ValidationResult
      */
@@ -45,7 +47,7 @@ abstract class BaseRequest extends FormRequest
 
     public function validate()
     {
-        $validatorInstance = $this->getValidatorInstance();
+        $validatorInstance = $this->createValidatorInstance();
         $this->validationResult = $validationResult = $validatorInstance->validate();
 
         $this->processed();
@@ -168,6 +170,13 @@ abstract class BaseRequest extends FormRequest
         }
     }
 
+    protected function createValidatorInstance()
+    {
+        $data = $this->getDataToValidate();
+        $this->validatorInstance = new ValidationManager($data, $this->rules());
+        return $this->validatorInstance;
+    }
+
     /**
      * Get the validator instance for the request.
      *
@@ -175,8 +184,10 @@ abstract class BaseRequest extends FormRequest
      */
     protected function getValidatorInstance()
     {
-        $data = $this->getDataToValidate();
-        return new ValidationManager($data, $this->rules());
+        if ($this->validatorInstance === null) {
+            return $this->createValidatorInstance();
+        }
+        return $this->validatorInstance;
 //        $factory = $this->container->make('Illuminate\Validation\Factory');
 //
 //        if (method_exists($this, 'validator'))
