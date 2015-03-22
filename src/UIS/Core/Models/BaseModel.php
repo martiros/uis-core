@@ -3,8 +3,9 @@
 namespace UIS\Core\Models;
 
 use Lang;
+use Illuminate\Database\Eloquent\Model;
 
-abstract class BaseModel extends \Illuminate\Database\Eloquent\Model
+abstract class BaseModel extends Model
 {
     const TRUE = '1';
     const FALSE = '0';
@@ -48,7 +49,7 @@ abstract class BaseModel extends \Illuminate\Database\Eloquent\Model
 //        return parent::asDateTime($value);
 //    }
 
-public function scopePaginateBase($query, $perPage = null, $columns = null)
+    public function scopePaginateBase($query, $perPage = null, $columns = null)
     {
         $paginator = $query->getQuery()->getConnection()->getPaginator();
 
