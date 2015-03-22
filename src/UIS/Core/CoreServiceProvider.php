@@ -25,6 +25,7 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->publish();
         $this->registerLogger();
 //        $this->package('u-is/core');
         require_once __DIR__ . '/../../routes.php';
@@ -37,6 +38,8 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->commands('App\Console\Commands\CheckLocaleCommand');
+
         $this->registerLoader();
 
         $this->app->bindShared(
@@ -134,5 +137,26 @@ class CoreServiceProvider extends ServiceProvider
                 }
             }
         );
+    }
+
+
+    /******************************************************************************************************************/
+    /******************************************************************************************************************/
+    /******************************************************************************************************************/
+
+    protected function publish()
+    {
+        $this->publishMigrations();
+    }
+
+    protected function publishMigrations()
+    {
+        $pathToPackage = __DIR__ . '/../..';
+
+        // Publish migrations
+        $this->publishes([ $pathToPackage . '/database/migrations' => base_path('/database/migrations')], 'migrations');
+
+        // Publish seeds
+        $this->publishes([ $pathToPackage . '/database/seeds' => base_path('/database/seeds')], 'migrations');
     }
 }
