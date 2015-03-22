@@ -32,6 +32,10 @@ class LanguageManager extends Translator
 
     public function detectLanguage()
     {
+        if ($this->language !== null) {
+            return;
+        }
+
         $locale = $this->locale;
         if ($locale !== null) {
             $this->language = new Language();
@@ -70,6 +74,21 @@ class LanguageManager extends Translator
         }
         $this->addNotDefinedKeyword($namespace, $group, $key);
         return $key;
+    }
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function hasInAllLocales($key)
+    {
+        $languages = $this->getLanguages();
+        foreach ($languages as $lng) {
+            if (!$this->has($key, $lng->code)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     protected function getTransLine($line, $replace)
@@ -123,8 +142,16 @@ class LanguageManager extends Translator
         return false;
     }
 
-    protected function addNotDefinedKeyword($namespace, $group, $key)
+    public function getNotDefinedKeywordsCount()
     {
+        return $this->notDefinedKeywords === null ? 0 : count($this->notDefinedKeywords);
+    }
+
+    public function addNotDefinedKeyword($namespace, $group, $key, $filePath = '')
+    {
+        if ($namespace === null && $group === null) {
+            list($namespace, $group) = $this->parseKey($key);
+        }
         if ($this->notDefinedKeywords === null) {
             if (App::environment() !== 'testing') {
                 register_shutdown_function(
@@ -135,17 +162,15 @@ class LanguageManager extends Translator
             }
             $this->notDefinedKeywords = array();
         }
-        $appName = Config::get('app.name');
-        if (empty($appName)) {
-            $appName = 'app';
-        }
+        $appName = uis_app_name();
 
-        $hash = sha1("$namespace, $group, $key");
+        $hash = sha1("$namespace, $group, $key, $appName");
         $this->notDefinedKeywords[$hash] = array(
             'namespace' => $namespace,
             'key' => $key,
             'module' => $group,
             'app_name' => $appName,
+            'file' => $filePath,
         );
     }
 
@@ -156,26 +181,40 @@ class LanguageManager extends Translator
         }
 
         $insertBuffer = new BufferInsert(
-            'dictionary_ndk', array(
-            'hash',
-            'key',
-            'app_name',
-            'module',
-            'url',
-            'from_url',
-            'add_date',
-            'ip'
-        ),
-            array(
+            'dictionary_ndk',
+            [
+                'hash',
+                'key',
+                'app_name',
+                'module',
+                'url',
+                'from_url',
+                'file',
+                'add_date',
+                'ip'
+            ],
+            [
                 'key',
                 'module',
                 'app_name',
                 'url',
                 'from_url',
+                'file',
                 'add_date',
                 'ip',
-            )
+            ]
         );
+
+        $generalData = [];
+        if (App::runningInConsole()) {
+            $generalData['url'] = '';
+            $generalData['from_url'] = '';
+            $generalData['ip'] = 'cli';
+        } else {
+            $generalData['url'] = Request::server('REQUEST_URI', '');
+            $generalData['from_url'] = Request::server('HTTP_REFERER', '');
+            $generalData['ip'] = Request::ip();
+        }
 
         foreach ($this->notDefinedKeywords as $hash => $data) {
             $insertBuffer->insert(
@@ -184,10 +223,11 @@ class LanguageManager extends Translator
                     $data['key'],
                     $data['app_name'],
                     $data['module'],
-                    Request::server('REQUEST_URI', ''),
-                    Request::server('HTTP_REFERER', ''),
+                    $generalData['url'],
+                    $generalData['from_url'],
+                    $data['file'],
                     new DateTime(),
-                    Request::ip()
+                    $generalData['ip']
                 )
             );
         }
@@ -246,6 +286,7 @@ class LanguageManager extends Translator
      */
     public function language()
     {
+        $this->detectLanguage();
         return $this->language;
     }
 
