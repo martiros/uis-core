@@ -38,7 +38,7 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->commands('App\Console\Commands\CheckLocaleCommand');
+       // $this->commands('App\Console\Commands\CheckLocaleCommand');
 
         $this->registerLoader();
 
