@@ -11,6 +11,11 @@ class SubmittedImage extends SubmittedFile
      */
     protected $tempImage = null;
 
+    public function __construct($imageType = null)
+    {
+        $this->setFileType($imageType);
+    }
+
     /**
      * @param string $imageType
      */

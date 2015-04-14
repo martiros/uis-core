@@ -66,12 +66,12 @@ class ImageController extends BaseController
             );
 
         } catch( UIS_Uploader_Exception_FileNotFound $e ){
-            $valResult->addError('image', '{media.img_uploader.error.select_image}');
+            $valResult->addError('image', ' media.img_uploader.error.select_image');
         } catch (Media_ImgUploader_Exception_InvalidWidth $ex) {
             $valResult->addError(
                 'image',
                 trans(
-                    'media.img_uploader.error.width',
+                    ' media.img_uploader.error.width',
                     null,
                     array(
                         'width' => $ex->getWidth(),
@@ -83,7 +83,7 @@ class ImageController extends BaseController
             $valResult->addError(
                 'image',
                 trans(
-                    'media.img_uploader.error.min_width',
+                    ' media.img_uploader.error.min_width',
                     null,
                     array(
                         'min_width' => $ex->getMinWidth(),
@@ -95,7 +95,7 @@ class ImageController extends BaseController
             $valResult->addError(
                 'image',
                 trans(
-                    'media.img_uploader.error.max_width',
+                    ' media.img_uploader.error.max_width',
                     null,
                     array(
                         'max_width' => $ex->getMaxWidth(),
@@ -107,7 +107,7 @@ class ImageController extends BaseController
             $valResult->addError(
                 'image',
                 trans(
-                    'media.img_uploader.error.height',
+                    ' media.img_uploader.error.height',
                     null,
                     array(
                         'height' => $ex->getHeight(),
@@ -119,7 +119,7 @@ class ImageController extends BaseController
             $valResult->addError(
                 'image',
                 trans(
-                    'media.img_uploader.error.min_height',
+                    ' media.img_uploader.error.min_height',
                     null,
                     array(
                         'min_height' => $ex->getMinHeight(),
@@ -131,7 +131,7 @@ class ImageController extends BaseController
             $valResult->addError(
                 'image',
                 trans(
-                    'media.img_uploader.error.max_height',
+                    ' media.img_uploader.error.max_height',
                     null,
                     array(
                         'max_height' => $ex->getMaxHeight(),
@@ -146,35 +146,35 @@ class ImageController extends BaseController
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         catch ( Media_ImgUploader_Exception_ImageNotFound $e ) {
-            $valResult->addError( 'result', '{media.img_uploader.error.select_image}' );
+            $valResult->addError( 'result', ' media.img_uploader.error.select_image ' );
         }
         catch ( Media_ImgUploader_Exception_CantStore $e ) {
-            $valResult->addError( 'result', '{media.img_uploader.error.unavailable}' );
+            $valResult->addError( 'result', ' media.img_uploader.error.unavailable ' );
             $logger = UIS_Log_File::getLogger();
             $logger->logFull( 'img_uploader_unavailable', $e );
         }
         catch ( Media_ImgUploader_Exception_InvalidFileMaxSize $e ) {
-            $valResult->addError( 'result', trans( 'media.img_uploader.error.invalid_max_size',null, array( $e->getMaxSize() ) ) );
+            $valResult->addError( 'result', trans( ' media.img_uploader.error.invalid_max_size',null, array( $e->getMaxSize() ) ) );
         }
         catch ( Media_ImgUploader_Exception_InvalidExtension $e ) {
             $result->status 	=  'INVALID_DATA';
-            $result->errors = array( 'result'	=>	trans( 'media.img_uploader.error.invalid_image_type', null, array( implode( ', ', $e->getAllowedExtensions() ) ) ) );
+            $result->errors = array( 'result'	=>	trans( ' media.img_uploader.error.invalid_image_type', null, array( implode( ', ', $e->getAllowedExtensions() ) ) ) );
         }
         catch ( Media_ImgUploader_Exception_InvalidMinWidth $e ) {
             $result->status 	=  'INVALID_DATA';
-            $result->errors = array( 'result'	=>	trans( 'media.img_uploader.error.invalid_min_width', null, array( $e->getMinWidth() ) ) );
+            $result->errors = array( 'result'	=>	trans( ' media.img_uploader.error.invalid_min_width', null, array( $e->getMinWidth() ) ) );
         }
         catch ( Media_ImgUploader_Exception_InvalidMinHeight $e ) {
             $result->status 	=  'INVALID_DATA';
-            $result->errors = array( 'result'	=>	trans( 'media.img_uploader.error.invalid_min_height', null, array( $e->getMinHeight() ) ) );
+            $result->errors = array( 'result'	=>	trans( ' media.img_uploader.error.invalid_min_height', null, array( $e->getMinHeight() ) ) );
         }
         catch ( Media_ImgUploader_Exception_InvalidMaxWidth $e ) {
             $result->status 	=  'INVALID_DATA';
-            $result->errors = array( 'result'	=>	trans( 'media.img_uploader.error.invalid_max_width', null, array( $e->getMaxWidth() ) ) );
+            $result->errors = array( 'result'	=>	trans( ' media.img_uploader.error.invalid_max_width', null, array( $e->getMaxWidth() ) ) );
         }
         catch ( Media_ImgUploader_Exception_InvalidMaxHeight $e ) {
             $result->status 	=  'INVALID_DATA';
-            $result->errors = array( 'result'	=>	trans( 'media.img_uploader.error.invalid_max_height', null, array( $e->getMaxHeight() ) ) );
+            $result->errors = array( 'result'	=>	trans( ' media.img_uploader.error.invalid_max_height', null, array( $e->getMaxHeight() ) ) );
         }
         $result->status = $valResult->isValid() ? 'OK' : 'INVALID_DATA';
         $result->errors = $valResult->errors();

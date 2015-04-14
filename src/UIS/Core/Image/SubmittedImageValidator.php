@@ -11,7 +11,7 @@ class SubmittedImageValidator extends Int
         $submittedImageValue = trim($this->getVarValue());
         $submittedImage = new SubmittedImage();
         $this->setVarValue($submittedImage);
-        if ($this->isEmpty()) {
+        if (empty($submittedImageValue)) {
             $submittedImage->setImageType(SubmittedImage::FILE_TYPE_EMPTY);
         } else if ($submittedImageValue === 'same') {
             $submittedImage->setImageType(SubmittedImage::FILE_TYPE_SAME);
@@ -37,8 +37,13 @@ class SubmittedImageValidator extends Int
         return true;
     }
 
-    public function passEmptyData()
+    public function validateRequired()
     {
-        return true;
+        return $this->makeValid();
+    }
+
+    public function isEmpty()
+    {
+        return false;
     }
 }
