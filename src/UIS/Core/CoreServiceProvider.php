@@ -28,7 +28,7 @@ class CoreServiceProvider extends ServiceProvider
         $this->publish();
         $this->registerLogger();
 //        $this->package('u-is/core');
-        require_once __DIR__ . '/../../routes.php';
+        require __DIR__ . '/../../routes.php';
     }
 
     /**
