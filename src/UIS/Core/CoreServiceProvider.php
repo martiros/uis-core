@@ -38,8 +38,10 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function register()
     {
-       // $this->commands('App\Console\Commands\CheckLocaleCommand');
-
+        if (App::runningInConsole()) {
+            $this->commands('UIS\Core\Foundation\Console\ClearOldDataCommand');
+        }
+        
         $this->registerLoader();
 
         $this->app->bindShared(
