@@ -266,7 +266,7 @@ class StateSaver
     protected function dumpDatabase($path)
     {
         $connection = $this->resolver->connection();
-        $command = 'mysqldump -u ' . $this->connectionOptions['username'] . ' -p' . $this->connectionOptions['password'] . ' ' . $connection->getDatabaseName(
+        $command = 'mysqldump -u ' . $this->connectionOptions['username'] . ' -p' . $this->connectionOptions['password'] . ' -h' . $this->connectionOptions['host'] . ' ' . $connection->getDatabaseName(
             ) . ' > ' . $path . '/db.sql';
         $result = shell_exec($command);
         if (strpos($result, 'ERROR ')) {
