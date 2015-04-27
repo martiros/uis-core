@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Foundation\Bus\DispatchesCommands;
 use Illuminate\Routing\Controller;
 use Illuminate\Foundation\Validation\ValidatesRequests;
+use Request;
 
 trait BaseControllerTrait
 {
@@ -41,15 +42,7 @@ trait BaseControllerTrait
 
     protected function isApiCall()
     {
-        $request = $this->getRequest();
-        $pathInfo = $request->getPathInfo();
-
-        if ($this->request->isXmlHttpRequest() || strpos($pathInfo, '/api', 0) === 0 || strpos(
-                $pathInfo,
-                '/service',
-                0
-            ) === 0
-        ) {
+        if (Request::ajax() || strpos(Request::path(), 'api/') === 0) {
             return true;
         }
         return false;

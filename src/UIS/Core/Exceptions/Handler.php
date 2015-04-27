@@ -71,6 +71,10 @@ class Handler extends ExceptionHandler
         }
 
         $data = !empty($data) ? $data : null;
+        if (!$this->isApiCall()) {
+            return $this->showErrorPage($data);
+        }
+
         return $this->api(
             $exceptionData['status'],
             $data,
@@ -78,6 +82,13 @@ class Handler extends ExceptionHandler
             $exceptionData['http_status_code'],
             $exceptionData['http_headers']
         );
+    }
+
+    protected function showErrorPage($data)
+    {
+        $title = isset($data['message']['title']) ? $data['message']['title'] : trans('uis_core.error.unknown.title');
+        $body = isset($data['message']['body']) ? $data['message']['body'] : trans('uis_core.error.unknown.body');
+        return response()->view('errors.base', ['title' => $title, 'body' => $body]);
     }
 
     protected function logException(PHPException $e)

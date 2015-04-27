@@ -27,6 +27,10 @@ class CoreServiceProvider extends ServiceProvider
     {
         $this->publish();
         $this->registerLogger();
+
+        $this->loadViewsFrom(__DIR__.'/../../resources/templates', 'uis_core');
+
+
 //        $this->package('u-is/core');
         require __DIR__ . '/../../routes.php';
     }
@@ -149,6 +153,7 @@ class CoreServiceProvider extends ServiceProvider
     protected function publish()
     {
         $this->publishMigrations();
+        $this->publishViews();
     }
 
     protected function publishMigrations()
@@ -160,5 +165,12 @@ class CoreServiceProvider extends ServiceProvider
 
         // Publish seeds
         $this->publishes([ $pathToPackage . '/database/seeds' => base_path('/database/seeds')], 'migrations');
+    }
+
+    protected function publishViews()
+    {
+        $pathToPackage = __DIR__ . '/../..';
+
+        $this->publishes([ $pathToPackage . '/resources/stub_templates' => base_path('/resources/templates')], 'templates');
     }
 }
