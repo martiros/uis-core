@@ -1,22 +1,34 @@
-<?php  namespace UIS\Core\Page;
+<?php
+namespace UIS\Core\Page;
 
 use UIS\Core\Page\ScriptsContract;
 
 class PageContainer
 {
+    protected $title = null;
+
+    protected $escapeTitle = true;
+
     protected $translates = [];
 
-    private static $scTitle = true;
-
-    public function title($title = null, $scString = true)
+    /**
+     * @param string $title
+     * @param bool $escape
+     * @return string
+     */
+    public function title($title = null, $escape = true)
     {
-        if ( $title === null ) {
-            return '<title>'.( self::$scTitle === true ? sc_string( self::$title ) :  self::$title ).'</title>';
+        if ($title === null) {
+            $title = $this->escapeTitle === true ? e($this->title) : $this->title;
+            return '<title>' . $title . '</title>';
         }
-        self::$title = $title;
-        self::$scTitle = $scString;
+        $this->title = $title;
+        $this->escapeTitle = $escape;
     }
 
+    /**********************************************************************************************************************/
+    /**********************************************************************************************************************/
+    /**********************************************************************************************************************/
 
     public function addTrans($trans)
     {
@@ -45,16 +57,6 @@ class PageContainer
             </script>
         <?php
     }
-
-
-    /**********************************************************************************************************************/
-    /**********************************************************************************************************************/
-    /**********************************************************************************************************************/
-
-    /**
-     * @var string
-     */
-    protected $title = null;
 
     /**
      * @var string
