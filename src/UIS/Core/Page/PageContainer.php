@@ -7,24 +7,70 @@ class PageContainer
 {
     protected $title = null;
 
+    protected $titleTemplate = null;
+
     protected $escapeTitle = true;
 
+    protected $disableTitleTemplate = false;
+
     protected $translates = [];
+
 
     /**
      * @param string $title
      * @param bool $escape
+     * @param bool $disableTitleTemplate
      * @return string
      */
-    public function title($title = null, $escape = true)
+    public function title($title = null, $escape = true, $disableTitleTemplate = false)
     {
         if ($title === null) {
-            $title = $this->escapeTitle === true ? e($this->title) : $this->title;
-            return '<title>' . $title . '</title>';
+            return '<title>' . $this->getTitle() . '</title>';
+        } else {
+            $this->setTitle($title, $escape, $disableTitleTemplate);
         }
+
+    }
+
+    public function setTitle($title, $escape = true, $disableTitleTemplate = false)
+    {
         $this->title = $title;
         $this->escapeTitle = $escape;
+        $this->disableTitleTemplate = $disableTitleTemplate;
     }
+
+    public function getTitle()
+    {
+        $title = $this->escapeTitle === true ? e($this->title) : $this->title;
+        if (!$this->disableTitleTemplate && $this->titleTemplate !== null) {
+            $title = str_replace('{title}', $title, $this->titleTemplate);
+        }
+        return $title;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSetTitle()
+    {
+        return !is_null($this->title);
+    }
+
+    public function setTitleTemplate($titleTemplate)
+    {
+        $this->titleTemplate = $titleTemplate;
+    }
+
+    public function disableTitleTemplate()
+    {
+        $this->disableTitleTemplate = true;
+    }
+
+    public function enableTitleTemplate()
+    {
+        $this->disableTitleTemplate = false;
+    }
+
 
     /**********************************************************************************************************************/
     /**********************************************************************************************************************/
@@ -137,6 +183,712 @@ class PageContainer
         return $ogData."\n";
     }
 }
+
+/*************************************************************************************************/
+/****************************----------------------------------***********************************/
+/*************************************************************************************************/
+
+class Core_Helper_Head
+{
+
+    private static $canonical = null;
+
+    /**
+     * @var UIS_Paging
+     */
+    private static $mainPaging = null;
+
+
+    /**
+     * @return bool
+     */
+    public static function isSetCanonical()
+    {
+        return !empty(self::$canonical);
+    }
+
+    /**
+     * @param string $url
+     * @return string
+     */
+    public static function canonical($url=null)
+    {
+        if ($url!==null) {
+            self::$canonical = $url;
+            return;
+        }
+
+        if (self::$canonical===null) {
+            return '';
+        }
+        return '<link rel="canonical" href="'.(self::$canonical).'"/>';
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isSetPaging()
+    {
+        return !empty(self::$mainPaging);
+    }
+
+    /**
+     * @param UIS_Paging $paging
+     */
+    public static function setPaging(UIS_Paging $paging)
+    {
+        self::$mainPaging = $paging;
+    }
+
+    /**
+     * @return string
+     */
+    public static function generatePaginationHelper()
+    {
+        if (self::$mainPaging==null) {
+            return '';
+        }
+        return self::$mainPaging->generatePaginationHelper();
+    }
+
+    /******************************************************************************************************************/
+    /******************************************************************************************************************/
+    /******************************************************************************************************************/
+
+
+
+
+
+    /**
+     * @var Core_Helper_Head_OpenGraph
+     */
+    private static $headOpenGraphData = null;
+
+    public static function openGraph() {
+
+        if ( self::$headOpenGraphData === null ) {
+            self::$headOpenGraphData = new Core_Helper_Head_OpenGraph();
+        }
+        return self::$headOpenGraphData;
+
+    }
+
+    /**
+     * @var Core_Helper_Head_Meta
+     */
+    private static $headMeta = null;
+
+
+    /**
+     * @return Core_Helper_Head_Meta
+     */
+    public static function meta(){
+        if ( self::$headMeta === null ){
+            self::$headMeta = new Core_Helper_Head_Meta();
+        }
+        return self::$headMeta;
+    }
+
+
+
+
+    private static $headScript = null;
+
+    /**
+     * @return Core_Helper_Head_Script
+     */
+    public static function script(  ){
+
+        if (  self::$headScript === null  ){
+            self::$headScript = new Core_Helper_Head_Script();
+        }
+
+        return self::$headScript;
+
+    }
+
+
+    /**
+     * @var Core_Helper_Head_Style
+     */
+    private static $headStyle = null;
+
+    /**
+     * @return Core_Helper_Head_Style
+     */
+    public static function style () {
+
+        if (  self::$headStyle === null  ){
+            self::$headStyle = new Core_Helper_Head_Style();
+        }
+
+        return self::$headStyle;
+
+    }
+
+
+    //	Core_Helper_Head_Rss
+
+    /**
+     * @var Core_Helper_Head_Style
+     */
+    private static $headStyleRss = null;
+
+    /**
+     * @return Core_Helper_Head_Rss
+     */
+    public static function rss () {
+
+        if (  self::$headStyleRss === null  ){
+            self::$headStyleRss = new Core_Helper_Head_Rss();
+        }
+
+        return self::$headStyleRss;
+
+    }
+
+
+
+
+    private static $dataStore = array();
+
+    public static function setData( $dataKey , $data ) {
+        self::$dataStore[ $dataKey ] = $data;
+    }
+
+    public static function getData( $dataKey ){
+
+        if( isset( self::$dataStore[ $dataKey ] ) ){
+            return self::$dataStore[ $dataKey ];
+        }
+        return null;
+
+    }
+
+}
+
+/***********************************************************************************************************/
+/***********************************************************************************************************/
+/***********************************************************************************************************/
+
+class Core_Helper_Head_Script {
+
+    /**
+     *  @var array
+     */
+    protected  $filesData 		= 	 array();
+    protected  $cacheVersion 	=	 '';
+
+    public function __construct ()
+    {
+        $appConfig = UIS_Config::getConfig();
+        $this->cacheVersion = $appConfig->cache->killer->js_version;
+    }
+
+    private function getAppendPath(){
+        return '';
+    }
+
+
+    /**
+     *  Remove  script file
+     *	@param   string   $src
+     *  @return  boolean  true if file removed, else return false
+     */
+    public  function removeFile( $src ) {
+        if( isset(  $this->filesData[ $src ]  ) ){
+            unset( $this->filesData[ $src ] );
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @retrun string
+     */
+    public function path( $src ){
+        return $this->getAppendPath().$src;
+    }
+
+    /**
+     *  Prepend  script file
+     *	@param   string 	  $src
+     *  @param   string 	  $type
+     *  @param   array        $attrs
+     *  @return  void
+     */
+    public  function prependFile( $src , $minGroup = 'default',  $type = 'text/javascript', $attrs = array() ) {
+        $oldData = array();
+        $oldData[ $src ] = array (
+            'src' 		=> 	 $this->getAppendPath().$src,
+            'type'  	=>	 $type,
+            'attrs'		=>	 $attrs,
+            'minGroup'	=> 	 $minGroup
+        );
+        foreach( $this->filesData AS $key => $value ){
+            $oldData[ $key ] =  $value;
+        }
+        $this->filesData = 	$oldData;
+    }
+
+    /**
+     *  Prepend  script file
+     *	@param   string 	  $src
+     *  @param   string 	  $type
+     *  @param   array        $attrs
+     *  @return  Core_Helper_Head_Script
+     */
+    public  function appendFile ( $src , $minGroup = 'default',  $type = 'text/javascript', $attrs = array( 'rel' => 'stylesheet' ) ){
+
+        $this->filesData[ $src ] = array (
+            'src'		=> 	$this->getAppendPath().$src,
+            'type'  	=> 	$type,
+            'attrs'		=> 	$attrs,
+            'minGroup'	=> 	$minGroup
+        );
+        return $this;
+    }
+
+    /**
+     * @return Core_Helper_Head_Script
+     */
+    public function includeDataTables(){
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isSetFile( $src ) {
+        if ( isset( $this->filesData[ $src ] ) ) {
+            return true;
+        }
+        return false;
+    }
+
+
+    public  function getVersion (){
+        return $this->cacheVersion;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function generate()
+    {
+        $appConfig = UIS_Config::getConfig();
+
+        $scriptStr ='';
+        foreach( $this->filesData  AS $key => $script  ) {
+            $attrStr = "";
+            foreach( $script['attrs']  AS $attrKey => $attrValue ) {
+                $attrStr.="  $attrKey = \"$attrValue\" ";
+            }
+
+
+            $script['src'] .= '.js';
+            if (  strpos($script['src'], '?' )  === false ) {
+                $script['src'] = ($appConfig->web->url->static_js	).$script['src'].'?q='.$this->getVersion();
+            }
+            else {
+                $script['src'] = ($appConfig->web->url->static_js	).$script['src'].'&q='.$this->getVersion();
+            }
+
+            $scriptStr .= " <script src=\"{$script['src']}\" type=\"{$script['type']}\" $attrStr ></script> \n\r ";
+        }
+        return $scriptStr;
+    }
+}
+
+
+
+
+
+class  Core_Helper_Head_Style {
+
+    protected  $filesData 	 	= 	 array();
+    protected  $cacheVersion 	=	 '';
+
+    public function __construct()
+    {
+        $appConfig = UIS_Config::getConfig();
+        $this->cacheVersion 	=	$appConfig->cache->killer->css_version;
+    }
+
+    private function getAppendPath()
+    {
+        return '';
+    }
+
+    /**
+     *  Remove  style file
+     *	@param   string   $href
+     *  @return  boolean  true if file removed, else return false
+     */
+    public function removeFile( $href )
+    {
+        if( isset(  $this->filesData[ $href ]  ) ){
+            unset( $this->filesData[ $href ] );
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     *  Prepend  style file
+     *	@param   string 	  $href
+     *  @param   string 	  $type
+     *  @param   array        $attrs
+     *  @return  void
+     */
+    public function prependFile( $href , $minGroup = 'default', $type = 'text/css', $attrs = array( 'rel' => 'stylesheet' ) ) {
+
+        $oldData = array();
+        $oldData[ $href ] = array (
+            'href' 			=> 	 	 $this->getAppendPath().$href,
+            'type'  		=>		 $type,
+            'attrs'			=>		 $attrs,
+            'minGroup'		=> 		 $minGroup
+        );
+        foreach( $this->filesData AS $key => $value ){
+            $oldData[ $key ] =  $value;
+        }
+        $this->filesData = 	$oldData;
+
+    }
+
+
+    /**
+     *  Prepend  style file
+     *	@param   string 	  $href
+     *	@param   boolean	  $checkDate
+     *  @param   string 	  $type
+     *  @param   array        $attrs
+     *  @return  void
+     */
+    public function appendFile( $href  , $minGroup = 'default',  $type = 'text/css', $attrs = array( 'rel' => 'stylesheet' ) ){
+        $this->filesData[ $href ] = array (
+            'href'			=> 		$this->getAppendPath().$href,
+            'type'  		=> 		$type,
+            'attrs'			=> 		$attrs ,
+            'minGroup'		=> 		$minGroup
+        );
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isSetFile( $src ) {
+        if ( isset( $this->filesData[ $src ] ) ) {
+            return true;
+        }
+        return false;
+    }
+
+    public function getVersion (){
+        return $this->cacheVersion;
+    }
+
+    /**
+     * @return string
+     */
+    public function generate()
+    {
+        $appConfig = UIS_Config::getConfig();
+
+        $stylesStr ='';
+        foreach( $this->filesData  AS $key => $style ){
+            $attrStr = "";
+            foreach( $style['attrs']  AS $attrKey => $attrValue ){
+                $attrStr.="  $attrKey = \"$attrValue\" ";
+            }
+
+            $style['href'] .= '.css';
+            if (  strpos(  $style['href'] , '?' )  === false ) {
+                $style['href'] =  ($appConfig->web->url->static_css	).$style['href'].'?q='.$this->getVersion();
+            }
+            else {
+                $style['href'] =  ($appConfig->web->url->static_css	).$style['href'].'&q='.$this->getVersion();
+            }
+
+            $stylesStr .= " <link href=\"{$style['href']}\" type=\"{$style['type']}\" $attrStr />";
+
+        }
+        return $stylesStr;
+    }
+
+}
+
+
+
+
+class  Core_Helper_Head_OpenGraph {
+
+    private  $metaData = array();
+
+    public function description ( $content = null , $scString = true ) {
+
+        if ( $content === null ) {
+            if ( isset( $this->metaData[ 'description' ]  ) ) {
+                return $this->metaData[ 'description' ]['content'];
+            }
+            return null;
+        }
+
+        if( empty( $content ) ){
+            return false;
+        }
+
+        $this->metaData[ 'description' ] = array (
+            'sc_string'	=>	$scString,
+            'content'	=>	$content,
+            'key'		=>	'description'
+        );
+
+    }
+
+    public function title ( $content = null , $scString = true , $disableTitleTemplate = false ) {
+
+        if ( $content === null ) {
+            if ( isset( $this->metaData[ 'title' ]  ) ) {
+                return $this->metaData[ 'title' ]['content'];
+            }
+            return null;
+        }
+
+        if( empty( $content ) ){
+            return false;
+        }
+
+        if( !$disableTitleTemplate ){
+            $content = $content.' - '.trans( 'core.home.head_title', 'core' );
+        }
+
+        $this->metaData[ 'title' ] = array (
+            'sc_string'	=>	$scString,
+            'content'	=>	$content,
+            'key'		=>	'title'
+        );
+
+    }
+
+    public function image ( $content = null , $scString = true ) {
+
+        if ( $content === null ) {
+            if ( isset( $this->metaData[ 'image' ]  ) ) {
+                return $this->metaData[ 'image' ]['content'];
+            }
+            return null;
+        }
+
+        if( empty( $content ) ){
+            return false;
+        }
+
+        $this->metaData[ 'image' ] = array (
+            'sc_string'	=>	$scString,
+            'content'	=>	$content,
+            'key'		=>	'image'
+        );
+
+    }
+
+    public function append( $key , $content, $scString = true )   {
+        $this->metaData[ $key ] = array(
+            'sc_string'	=>	$scString,
+            'content'	=>	$content,
+            'key'		=>	$key
+        );
+    }
+
+    public function generate(  ) {
+        $dataStr = '';
+        foreach ( $this->metaData AS $key => $data ) {
+            $dataStr .= '<meta property="og:'.$key.'" content="'.( $data['sc_string'] === true ? sc_string( $data['content'] ) :  $data['content'] ).'" />';;
+        }
+        return $dataStr;
+    }
+
+}
+
+
+class  Core_Helper_Head_Rss {
+
+    protected  $filesData 	 	= 	 array();
+
+    public function isEmpty(){
+
+        if( empty( $this->filesData  ) ){
+            return true;
+        }
+        return false;
+
+    }
+
+    /**
+     *  Remove  RSS file
+     *	@param   string   $href
+     *  @return  boolean  true if file removed, else return false
+     */
+    public function removeFile( $href ) {
+        if( isset(  $this->filesData[ $href ]  ) ){
+            unset( $this->filesData[ $href ] );
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     *  Prepend  RSS file
+     *	@param   string 	  $href
+     *  @param   string 	  $type
+     *  @param   array        $attrs
+     *  @return  void
+     */
+    public function prependFile( $href , $minGroup = 'default', $type = 'application/rss+xml', $attrs = array( 'rel' => 'alternate', 'title' => 'RSS'  ) ) {
+
+        $oldData = array();
+        $oldData[ $href ] = array (
+            'href' 			=> 	 	 $href,
+            'type'  		=>		 $type,
+            'attrs'			=>		 $attrs,
+            'minGroup'		=> 		 $minGroup
+        );
+        foreach( $this->filesData AS $key => $value ){
+            $oldData[ $key ] =  $value;
+        }
+        $this->filesData = 	$oldData;
+
+    }
+
+
+    /**
+     *  Prepend  style file
+     *	@param   string 	  $href
+     *	@param   boolean	  $checkDate
+     *  @param   string 	  $type
+     *  @param   array        $attrs
+     *  @return  void
+     */
+    public function appendFile( $href  , $minGroup = 'default',  $type = 'application/rss+xml', $attrs = array( 'rel' => 'alternate', 'title' => 'RSS'  ) ) {
+
+        if( $minGroup === null ){
+            $minGroup = 'default';
+        }
+
+        $this->filesData[ $href ] = array (
+            'href'			=> 		$href,
+            'type'  		=> 		$type,
+            'attrs'			=> 		$attrs ,
+            'minGroup'		=> 		$minGroup
+        );
+
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isSetFile( $src ) {
+
+        if ( isset( $this->filesData[ $src ] ) ) {
+            return true;
+        }
+        return false;
+
+    }
+
+    /**
+     * @return string
+     */
+    public function generate()
+    {
+        $stylesStr ='';
+        foreach( $this->filesData  AS $key => $style ){
+            $attrStr = "";
+            foreach( $style['attrs']  AS $attrKey => $attrValue ){
+                $attrStr.="  $attrKey=\"$attrValue\" ";
+            }
+
+            $stylesStr .= " <link href=\"{$style['href']}\" type=\"{$style['type']}\" $attrStr />";
+
+        }
+        return $stylesStr;
+    }
+
+}
+
+
+
+
+class Core_Helper_Head_Meta {
+
+    private  $metaData = array();
+
+    public function description ( $content = null , $scString = true ) {
+
+        if ( $content === null ) {
+
+            if ( isset( $this->metaData[ 'description' ]  ) ) {
+                return $this->metaData[ 'description' ]['content'];
+            }
+            return null;
+
+        }
+
+        if( empty( $content ) ){
+            return false;
+        }
+
+        $this->metaData[ 'description' ] = array (
+            'sc_string'	=>	$scString,
+            'content'	=>	$content,
+            'key'		=>	'description'
+        );
+
+    }
+
+    public function keywords ( $content = null , $scString = true ) {
+
+        if ( $content === null ) {
+            if ( isset( $this->metaData[ 'keywords' ]  ) ) {
+                return $this->metaData[ 'keywords' ]['content'];
+            }
+            return null;
+        }
+
+        if( empty( $content ) ){
+            return false;
+        }
+
+        $this->metaData[ 'keywords' ] = array (
+            'sc_string'	=>	$scString,
+            'content'	=>	$content,
+            'key'		=>	'keywords'
+        );
+
+    }
+
+    public function append($key , $content, $scString=true)
+    {
+        $this->metaData[ $key ] = array(
+            'sc_string'	=>	$scString,
+            'content'	=>	$content,
+            'key'		=>	$key
+        );
+    }
+
+    public function generate()
+    {
+        $dataStr = '';
+        foreach ( $this->metaData AS $key => $data ) {
+            $dataStr .= '<meta name="'.$key.'" content="'.( $data['sc_string'] === true ? sc_string( $data['content'] ) :  $data['content'] ).'" />';;
+        }
+        return $dataStr;
+    }
+}
+
 
 /*
 
