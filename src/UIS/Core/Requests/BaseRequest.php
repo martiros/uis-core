@@ -76,6 +76,28 @@ abstract class BaseRequest extends FormRequest
 //        }
     }
 
+    /**
+     * @return ValidationResult
+     */
+    public function validateData()
+    {
+        $validatorInstance = $this->createValidatorInstance();
+        $this->validationResult = $validationResult = $validatorInstance->validate();
+
+        $this->processed();
+
+        if ($validationResult->isValid()) {
+            $this->success();
+        } else {
+            $this->failed();
+        }
+
+//        if ($validationResult->isValid()) {
+            $this->validatedData = $validatorInstance->getData();
+//        }
+        return $this->validationResult;
+    }
+
     protected function success()
     {
 
@@ -200,7 +222,7 @@ abstract class BaseRequest extends FormRequest
 //        );
     }
 
-    protected function getDataToValidate()
+    public function getDataToValidate()
     {
         if ($this->dataKey !== null) {
             return Input::get($this->dataKey, []);
