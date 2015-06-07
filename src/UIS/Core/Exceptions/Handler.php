@@ -72,7 +72,13 @@ class Handler extends ExceptionHandler
 
         $data = !empty($data) ? $data : null;
         if (!$this->isApiCall()) {
-            return $this->showErrorPage($data);
+            return $this->showErrorPage(
+                $exceptionData['status'],
+                $data,
+                $exceptionData['validation_result'],
+                $exceptionData['http_status_code'],
+                $exceptionData['http_headers']
+            );
         }
 
         return $this->api(
@@ -84,11 +90,16 @@ class Handler extends ExceptionHandler
         );
     }
 
-    protected function showErrorPage($data)
+    protected function showErrorPage($status, $data, $validationResult, $httpStatusCode, $httpHeaders)
     {
         $title = isset($data['message']['title']) ? $data['message']['title'] : trans('uis_core.error.unknown.title');
         $body = isset($data['message']['body']) ? $data['message']['body'] : trans('uis_core.error.unknown.body');
-        return response()->view('errors.base', ['title' => $title, 'body' => $body]);
+        return response()->view(
+            'errors.base',
+            ['title' => $title, 'body' => $body],
+            $httpStatusCode,
+            $httpHeaders
+        );
     }
 
     protected function logException(PHPException $e)
