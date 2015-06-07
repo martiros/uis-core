@@ -6,10 +6,12 @@ use Faker\Factory as Faker;
 use BadMethodCallException;
 use Mockery;
 use Mockery\MockInterface;
-
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 abstract class TestCase extends IntegrationTest
 {
     protected $faker;
+
+    protected $mailerMock = null;
 
     public function __construct()
     {
@@ -33,6 +35,25 @@ abstract class TestCase extends IntegrationTest
         return csrf_token();
     }
 
+    public function seeCookie($name, $value = null, $path = '/', $domain = null)
+    {
+        $cookies = $this->response->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY);
+        $this->assertTrue(isset($cookies[$domain][$path][$name]));
+
+        if ($value !== null) {
+            $encrypter = $this->app->make('\Illuminate\Contracts\Encryption\Encrypter');
+            $cookie = $cookies[$domain][$path][$name];
+            $this->assertEquals($encrypter->decrypt($value), $cookie->getValue());
+        }
+    }
+
+    public function notSeeCookie($name, $value = null, $path = '/', $domain = null)
+    {
+        $cookies = $this->response->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY);
+//        dd($cookies);
+        $this->assertTrue(!isset($cookies[$domain][$path][$name]));
+    }
+
     /**
      * @return \Mockery\MockInterface
      */
@@ -44,5 +65,17 @@ abstract class TestCase extends IntegrationTest
             $this->app->instance($class, $obj);
         }
         return $obj;
+    }
+
+    /**
+     * @return \Mockery\MockInterface
+     */
+    public function mockEmail()
+    {
+        if ($this->mailerMock === null) {
+            $this->mailerMock = Mockery::mock('Swift_Mailer');
+            $this->app['mailer']->setSwiftMailer($this->mailerMock);
+        }
+        return $this->mailerMock;
     }
 }
