@@ -1,13 +1,14 @@
 <?php
 namespace UIS\Core\Testing;
 
-use Laracasts\Integrated\Extensions\Laravel as IntegrationTest;
+use Illuminate\Foundation\Testing\TestCase as IlluminateTestCase;
 use Faker\Factory as Faker;
 use BadMethodCallException;
 use Mockery;
 use Mockery\MockInterface;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-abstract class TestCase extends IntegrationTest
+
+abstract class TestCase extends IlluminateTestCase
 {
     protected $faker;
 
@@ -16,6 +17,11 @@ abstract class TestCase extends IntegrationTest
     public function __construct()
     {
         $this->faker = Faker::create();
+    }
+
+    public function tearDown()
+    {
+        Mockery::close();
     }
 
     public function getUserForAuth()
@@ -50,7 +56,6 @@ abstract class TestCase extends IntegrationTest
     public function notSeeCookie($name, $value = null, $path = '/', $domain = null)
     {
         $cookies = $this->response->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY);
-//        dd($cookies);
         $this->assertTrue(!isset($cookies[$domain][$path][$name]));
     }
 
@@ -74,8 +79,39 @@ abstract class TestCase extends IntegrationTest
     {
         if ($this->mailerMock === null) {
             $this->mailerMock = Mockery::mock('Swift_Mailer');
+
+            $swiftTransport = Mockery::mock('Swift_Transport');
+            $swiftTransport->shouldReceive('stop');
+
+            $this->mailerMock->shouldReceive('getTransport')->andReturn($swiftTransport);
             $this->app['mailer']->setSwiftMailer($this->mailerMock);
         }
         return $this->mailerMock;
+    }
+
+    /**
+     * Get the form from the page with the given submit button text.
+     *
+     * @param  string|null  $buttonText
+     * @return \Symfony\Component\DomCrawler\Form
+     * @throws \InvalidArgumentException
+     */
+    protected function getForm($buttonText = null)
+    {
+        try {
+            if ($buttonText) {
+                if (strpos($buttonText, '#') === 0) {
+                    return $this->crawler->filter($buttonText)->form();
+                } else {
+                    return $this->crawler->selectButton($buttonText)->form();
+                }
+            }
+
+            return $this->crawler->filter('form')->form();
+        } catch (InvalidArgumentException $e) {
+            throw new InvalidArgumentException(
+                "Could not find a form that has submit button [{$buttonText}]."
+            );
+        }
     }
 }
