@@ -167,6 +167,39 @@ class Guard extends IlluminateGuard
     /****************************************************************************************/
     /****************************************************************************************/
 
+    public function validateUser($user, $password)
+    {
+        return $this->attemptUser($user, $password, false, false);
+    }
+
+    /**
+     * Attempt to authenticate a user using the given user object.
+     *
+     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @param  string $password
+     * @param  bool   $remember
+     * @param  bool   $login
+     * @return bool
+     */
+    public function attemptUser($user, $password, $remember = false, $login = true)
+    {
+        $credentials = ['id' => $user->id, 'password' => $password];
+        $this->fireAttemptEvent($credentials, $remember, $login);
+
+        $this->lastAttempted = $user;
+
+        // If an implementation of UserInterface was returned, we'll ask the provider
+        // to validate the user against the given credentials, and if they are in
+        // fact valid we'll log the users into the application and return true.
+        if ($this->hasValidCredentials($user, $credentials))
+        {
+            if ($login) $this->login($user, $remember);
+
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * Pull a user from the repository by its recaller ID.
