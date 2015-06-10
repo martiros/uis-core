@@ -10,7 +10,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "illuminate/support": "*",
+        "laravel/framework": "5.1.*",
         "mashape/unirest-php" : "dev-master"
     },
     "autoload": {
@@ -23,5 +23,7 @@
         "files": [
             "src/UIS/Core/Support/helpers.php"
         ]
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
