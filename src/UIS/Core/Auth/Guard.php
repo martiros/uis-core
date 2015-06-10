@@ -1,14 +1,32 @@
 <?php
+
 namespace UIS\Core\Auth;
 
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Guard as IlluminateGuard;
 use Illuminate\Contracts\Auth\Authenticatable as UserContract;
-use Symfony\Component\Security\Core\Util\StringUtils;
+use Illuminate\Support\Str;
+use UIS\Core\Auth\AuthTokenProviderContract;
+use Illuminate\Contracts\Auth\UserProvider;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class Guard extends IlluminateGuard
 {
+    /**
+     * @var \UIS\Core\Auth\AuthTokenProviderContract
+     */
+    protected $authTokenProvider;
+
+    public function __construct(UserProvider $provider,
+        SessionInterface $session,
+        Request $request = null,
+        AuthTokenProviderContract $authTokenProvider)
+    {
+        $this->authTokenProvider = $authTokenProvider;
+        parent::__construct($provider, $session, $request);
+    }
 
     /**
      * Log a user into the application.
@@ -24,11 +42,11 @@ class Guard extends IlluminateGuard
         // If the user should be permanently "remembered" by the application we will
         // queue a permanent cookie that contains the encrypted copy of the user
         // identifier. We will then decrypt this later to retrieve the users.
-        if ($remember)
-        {
+        if ($remember) {
             $authToken = $this->createRememberTokenIfDoesntExist($user);
-
-            $this->saveRecallerCookie($user, $authToken);
+            if ($authToken) {
+                $this->queueRememberMeToken($user, $authToken);
+            }
         }
 
         // If we have an event dispatcher instance set we will fire an event so that
@@ -37,6 +55,48 @@ class Guard extends IlluminateGuard
         $this->fireLoginEvent($user, $remember);
 
         $this->setUser($user);
+    }
+
+    protected function createRememberTokenIfDoesntExist(UserContract $user)
+    {
+        if ($this->hasActiveRememberToken($user)) {
+            return null;
+        }
+
+        $expireDate = new Carbon();
+        $expireDate->addMonth();
+        return $this->authTokenProvider->create([
+                    'token' => str_random(60),
+                    'user_id' => $user->id,
+                    'expire_date' => $expireDate
+                ]);
+    }
+
+    /**
+     * @param UserContract $user
+     * @return bool
+     */
+    protected function hasActiveRememberToken(UserContract $user)
+    {
+        $recallerId = $this->getRecallerId();
+        if (!$recallerId) {
+            return false;
+        }
+        $token = $this->authTokenProvider->retrieveById($recallerId);
+        if (!$token) {
+            return false;
+        }
+
+        if (!Str::equals($token->token, $this->getRecallerHash())) {
+            return false;
+        }
+
+        if (!$token->isActiveToken()) {
+            $this->authTokenProvider->delete($recallerId);
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -53,13 +113,9 @@ class Guard extends IlluminateGuard
         // listening for anytime a user signs out of this application manually.
         $this->clearUserDataFromStorage();
 
-        if ( ! is_null($this->user))
-        {
-//            $this->refreshRememberToken($user);
-        }
+        $this->removeRememberMeToken();
 
-        if (isset($this->events))
-        {
+        if (isset($this->events)) {
             $this->events->fire('auth.logout', [$user]);
         }
 
@@ -71,101 +127,27 @@ class Guard extends IlluminateGuard
         $this->loggedOut = true;
     }
 
-    /**
-     * Queue the recaller cookie into the cookie jar.
-     *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
-     * @return void
-     */
-    protected function queueRecallerCookie(UserContract $user)
+    protected function removeRememberMeToken()
     {
-        $value = $user->getAuthIdentifier().'|'.$user->getRememberToken();
-
-        $this->getCookieJar()->queue($this->createRecaller($value));
-    }
-
-    /**
-     * Queue the recaller cookie into the cookie jar.
-     *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
-     * @return void
-     */
-    protected function saveRecallerCookie(UserContract $user, AuthToken $authToken)
-    {
-        $value = $authToken->id.'|'.$authToken->token;
-
-        $this->getCookieJar()->queue($this->createRecaller($value));
-    }
-
-    /**
-     * Create a remember me cookie for a given ID.
-     *
-     * @param  string  $value
-     * @return \Symfony\Component\HttpFoundation\Cookie
-     */
-    protected function createRecaller($value)
-    {
-        return $this->getCookieJar()->forever($this->getRecallerName(), $value);
-    }
-
-    /**
-     * Remove the user data from the session and cookies.
-     *
-     * @return void
-     */
-    protected function clearUserDataFromStorage()
-    {
-        $this->session->remove($this->getName());
-
-        $recaller = $this->getRecallerName();
-
-        $this->getCookieJar()->queue($this->getCookieJar()->forget($recaller));
-    }
-
-
-    /**
-     * Get the name of the cookie used to store the "recaller".
-     *
-     * @return string
-     */
-    public function getRecallerName()
-    {
-        return 'remember_'.md5(get_class($this));
-    }
-
-    protected function createRememberTokenIfDoesntExist(UserContract $user)
-    {
-        if ($this->hasActiveRememberToken($user)) {
-            return null;
-        }
-
-        $expireDate = new Carbon();
-        $expireDate->addYear();
-        $authToken = new AuthToken([
-            'token' => str_random(60),
-            'user_id' => $user->id,
-            'expire_date' => $expireDate
-        ]);
-        $authToken->save();
-        return $authToken;
-        //  $this->viaRemember = true;
-    }
-
-    protected function hasActiveRememberToken(UserContract $user)
-    {
-        return false;
         $recallerId = $this->getRecallerId();
         if (!$recallerId) {
-            return false;
+            return;
         }
-
-        dd($this->getRecaller(), $user);
+        $this->authTokenProvider->delete($recallerId);
     }
 
+    /**
+     * Queue the remember me token cookie into the cookie jar.
+     *
+     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @return void
+     */
+    protected function queueRememberMeToken(UserContract $user, AuthToken $authToken)
+    {
+        $value = $authToken->getTokenIdentifier().'|'.$authToken->getToken();
 
-    /****************************************************************************************/
-    /****************************************************************************************/
-    /****************************************************************************************/
+        $this->getCookieJar()->queue($this->createRecaller($value));
+    }
 
     public function validateUser($user, $password)
     {
@@ -188,9 +170,6 @@ class Guard extends IlluminateGuard
 
         $this->lastAttempted = $user;
 
-        // If an implementation of UserInterface was returned, we'll ask the provider
-        // to validate the user against the given credentials, and if they are in
-        // fact valid we'll log the users into the application and return true.
         if ($this->hasValidCredentials($user, $credentials))
         {
             if ($login) $this->login($user, $remember);
@@ -228,22 +207,28 @@ class Guard extends IlluminateGuard
             return;
         }
 
-        if (!StringUtils::equals($authToken->token, $token)) {
+        if (!Str::equals($authToken->token, $token)) {
             return;
         }
 
-        // @TODO: Check is active user who can login ???
-        $user = User::find($authToken->user_id);
+        return User::find($authToken->user_id);
+    }
 
-//        dd($user);
-        return $user;
-//        if ()
-//        dd('FUNCTION - retrieveUserByToken', func_get_args());
+    /**
+     * Get the name of the cookie used to store the "recaller".
+     *
+     * @return string
+     */
+    public function getRecallerName()
+    {
+        return 'remember';
     }
 
     protected function validRecaller($recaller)
     {
-        if ( ! is_string($recaller) || ! str_contains($recaller, '|')) return false;
+        if ( ! is_string($recaller) || ! str_contains($recaller, '|')) {
+            return false;
+        }
 
         $segments = explode('|', $recaller);
 
@@ -257,9 +242,15 @@ class Guard extends IlluminateGuard
      */
     protected function getRecallerId()
     {
-        if ($this->validRecaller($recaller = $this->getRecaller()))
-        {
+        if ($this->validRecaller($recaller = $this->getRecaller())) {
             return head(explode('|', $recaller));
+        }
+    }
+
+    protected function getRecallerHash()
+    {
+        if ($this->validRecaller($recaller = $this->getRecaller())) {
+            return last(explode('|', $recaller));
         }
     }
 }

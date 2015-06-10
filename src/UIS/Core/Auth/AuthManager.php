@@ -1,8 +1,10 @@
 <?php
+
 namespace UIS\Core\Auth;
 
 use Illuminate\Support\Manager;
 use Illuminate\Auth\DatabaseUserProvider;
+use Illuminate\Contracts\Auth\UserProvider;
 
 class AuthManager extends Manager {
 
@@ -79,7 +81,7 @@ class AuthManager extends Manager {
     {
         $provider = $this->createEloquentProvider();
 
-        return new Guard($provider, $this->app['session.store']);
+        return new Guard($provider, $this->app['session.store'], null, $this->app['auth.token_provider']);
     }
 
     /**
