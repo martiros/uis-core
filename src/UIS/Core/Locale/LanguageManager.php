@@ -24,7 +24,7 @@ class LanguageManager extends Translator
 
     protected $notDefinedKeywords = null;
 
-    public function __construct(LoaderInterface $loader, $locale)
+    public function __construct($loader, $locale)
     {
         $this->loader = $loader;
         $this->locale = $locale;
@@ -69,10 +69,10 @@ class LanguageManager extends Translator
         list($namespace, $group, $item) = $this->parseKey($key);
 
         $this->load($namespace, $group, $locale);
-        if (isset($this->loadedKeys[$locale][$key])) {
-            return $this->getTransLine($this->loadedKeys[$locale][$key], $replace);
+
+        if (isset($this->loadedKeys[$locale][$item])) {
+            return $this->getTransLine($this->loadedKeys[$locale][$item], $replace);
         }
-        $this->addNotDefinedKeyword($namespace, $group, $key);
         return $key;
     }
 
@@ -102,33 +102,14 @@ class LanguageManager extends Translator
 
     protected function makeReplacements($line, array $replace)
     {
-        $replace = $this->sortReplacements($replace);
-
         foreach ($replace as $key => $value) {
             if (!$this->canConvertToString($value)) {
                 continue;
             }
-            $line = str_replace(':' . $key, $value, $line);
+            $line = str_replace('{' . $key . '}', $value, $line);
         }
 
         return $line;
-    }
-
-    /**
-     * Sort the replacements array.
-     *
-     * @param  array $replace
-     * @return array
-     */
-    protected function sortReplacements(array $replace)
-    {
-        $replace = array_filter(
-            $replace,
-            function ($r) {
-                return $this->canConvertToString($r);
-            }
-        );
-        return parent::sortReplacements($replace);
     }
 
     protected function canConvertToString($item)
