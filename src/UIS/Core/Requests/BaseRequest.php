@@ -1,15 +1,14 @@
-<?php namespace UIS\Core\Requests;
+<?php
+
+namespace UIS\Core\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
-
 use Illuminate\Http\Exception\HttpResponseException;
-use Response, Input;
+use Response;
+use Input;
 use UIS\Mvf\ValidationManager;
 use UIS\Mvf\ValidationResult;
-
 use Carbon\Carbon;
-
 
 abstract class BaseRequest extends FormRequest
 {
@@ -60,11 +59,11 @@ abstract class BaseRequest extends FormRequest
 
         if ($validationResult->isValid()) {
             $this->validatedData = $validatorInstance->getData();
+
             return true;
         }
 
         $this->validationFailed($validationResult);
-
 
 //        if ( ! $this->passesAuthorization())
 //        {
@@ -100,17 +99,14 @@ abstract class BaseRequest extends FormRequest
 
     protected function success()
     {
-
     }
 
     protected function processed()
     {
-
     }
 
     protected function failed()
     {
-
     }
 
     /**
@@ -131,8 +127,7 @@ abstract class BaseRequest extends FormRequest
      */
     protected function passesAuthorization()
     {
-        if (method_exists($this, 'authorize'))
-        {
+        if (method_exists($this, 'authorize')) {
             return $this->container->call([$this, 'authorize']);
         }
 
@@ -164,14 +159,14 @@ abstract class BaseRequest extends FormRequest
         );
     }
 
-    public function api($status, $data = null, $validationResult = null, $httpStatusCode = 200, $httpHeaders = array())
+    public function api($status, $data = null, $validationResult = null, $httpStatusCode = 200, $httpHeaders = [])
     {
         if ($status === null) {
             $status = $validationResult->isValid() ? 'OK' : 'INVALID_DATA';
         }
-        $result = array(
+        $result = [
             'status' => $status,
-        );
+        ];
 
         if ($validationResult !== null) {
             $result['errors'] = $validationResult;
@@ -184,10 +179,10 @@ abstract class BaseRequest extends FormRequest
         Carbon::setToJsonFormat(Carbon::ISO8601);
 
         try {
-//            $httpHeaders = array();
+            //            $httpHeaders = array();
 //            uis_dump($result, $httpStatusCode, $httpHeaders);
             return Response::json($result, $httpStatusCode, $httpHeaders);
-        } catch (Exception $e){
+        } catch (Exception $e) {
             uis_dump($e);
         }
     }
@@ -196,6 +191,7 @@ abstract class BaseRequest extends FormRequest
     {
         $data = $this->getDataToValidate();
         $this->validatorInstance = new ValidationManager($data, $this->rules());
+
         return $this->validatorInstance;
     }
 
@@ -209,6 +205,7 @@ abstract class BaseRequest extends FormRequest
         if ($this->validatorInstance === null) {
             return $this->createValidatorInstance();
         }
+
         return $this->validatorInstance;
 //        $factory = $this->container->make('Illuminate\Validation\Factory');
 //
@@ -227,6 +224,7 @@ abstract class BaseRequest extends FormRequest
         if ($this->dataKey !== null) {
             return Input::get($this->dataKey, []);
         }
+
         return Input::get();
     }
 
@@ -256,5 +254,4 @@ abstract class BaseRequest extends FormRequest
     // See what it does natively here:
     // https://github.com/laravel/framework/blob/master/src/Illuminate/Foundation/Http/FormRequest.php
 //    }
-
 }

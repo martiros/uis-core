@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Testing;
 
 use Illuminate\Foundation\Testing\TestCase as IlluminateTestCase;
@@ -26,18 +27,20 @@ abstract class TestCase extends IlluminateTestCase
 
     public function getUserForAuth()
     {
-        throw new BadMethodCallException("getUserForAuth method not implemented.");
+        throw new BadMethodCallException('getUserForAuth method not implemented.');
     }
 
     public function login()
     {
         $this->be($this->getUserForAuth());
+
         return $this;
     }
 
     public function token()
     {
         $this->startSession();
+
         return csrf_token();
     }
 
@@ -69,6 +72,7 @@ abstract class TestCase extends IlluminateTestCase
             $obj = Mockery::mock($class);
             $this->app->instance($class, $obj);
         }
+
         return $obj;
     }
 
@@ -86,6 +90,7 @@ abstract class TestCase extends IlluminateTestCase
             $this->mailerMock->shouldReceive('getTransport')->andReturn($swiftTransport);
             $this->app['mailer']->setSwiftMailer($this->mailerMock);
         }
+
         return $this->mailerMock;
     }
 

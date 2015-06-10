@@ -8,22 +8,22 @@ class Exception extends \Exception
 {
     public function getMessageData()
     {
-        return null;
+        return;
     }
 
     public function getHttpHeaders()
     {
-        return null;
+        return;
     }
 
     public function getStatus()
     {
-        return null;
+        return;
     }
 
     public function getHttpStatusCode()
     {
-        return null;
+        return;
     }
 
     public function useDefault()
@@ -38,12 +38,11 @@ class Exception extends \Exception
 
     public function getValidationErrors()
     {
-
     }
 
     public function getErrors()
     {
-        return null;
+        return;
     }
 
     public function getValidationResult()
@@ -51,8 +50,10 @@ class Exception extends \Exception
         $errors = $this->getErrors();
         if (is_array($errors)) {
             $validationResult = new ValidationResult($errors);
+
             return $validationResult->errors();
         }
+
         return $errors;
     }
 }

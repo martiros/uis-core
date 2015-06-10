@@ -6,10 +6,10 @@ class InvalidDataException extends Exception
 {
     public function getMessageData()
     {
-        return array(
+        return [
             'title' => trans('uis_core.error.bad_request.title'),
-            'body' => trans('uis_core.error.bad_request.body')
-        );
+            'body' => trans('uis_core.error.bad_request.body'),
+        ];
     }
 
     public function getStatus()

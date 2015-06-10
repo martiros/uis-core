@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Foundation\Console;
 
 use Illuminate\Console\Command;

@@ -11,7 +11,7 @@ class CatchableException extends Exception
 
     public function getStatus()
     {
-        return null;
+        return;
     }
 
     public function getHttpStatusCode()

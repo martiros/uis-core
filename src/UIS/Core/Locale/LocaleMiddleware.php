@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Locale;
 
 use Closure;
@@ -17,6 +18,7 @@ class LocaleMiddleware implements Middleware
     public function handle($request, Closure $next)
     {
         Lang::detectLanguage();
+
         return $next($request);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -18,12 +19,12 @@ class LanguagesSeeder extends Seeder
         if (!empty($applicationLanguage)) {
             return;
         }
-        $languageFile = images_path() . DIRECTORY_SEPARATOR . 'lng';
+        $languageFile = images_path().DIRECTORY_SEPARATOR.'lng';
         if (!file_exists($languageFile)) {
             mkdir($languageFile);
         }
-        $resource = __DIR__ . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'en.png';
-        $languageFile =  $languageFile . DIRECTORY_SEPARATOR . 'en.png';
+        $resource = __DIR__.DIRECTORY_SEPARATOR.'resources'.DIRECTORY_SEPARATOR.'en.png';
+        $languageFile = $languageFile.DIRECTORY_SEPARATOR.'en.png';
         copy($resource, $languageFile);
 
         $applicationLanguage = new ApplicationLanguage([

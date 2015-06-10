@@ -4,10 +4,9 @@ namespace UIS\Core\Auth;
 
 use Illuminate\Support\Manager;
 use Illuminate\Auth\DatabaseUserProvider;
-use Illuminate\Contracts\Auth\UserProvider;
 
-class AuthManager extends Manager {
-
+class AuthManager extends Manager
+{
     /**
      * Create a new driver instance.
      *
@@ -38,7 +37,9 @@ class AuthManager extends Manager {
     {
         $custom = parent::callCustomCreator($driver);
 
-        if ($custom instanceof Guard) return $custom;
+        if ($custom instanceof Guard) {
+            return $custom;
+        }
 
         return new Guard($custom, $this->app['session.store']);
     }
@@ -116,5 +117,4 @@ class AuthManager extends Manager {
     {
         $this->app['config']['auth.driver'] = $name;
     }
-
 }

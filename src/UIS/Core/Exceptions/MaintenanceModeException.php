@@ -10,10 +10,10 @@ class MaintenanceModeException extends Exception
 
     public function getMessageData()
     {
-        return array(
+        return [
             'title' => trans('uis_core.error.maintenance_mode.title'),
-            'body' => trans('uis_core.error.maintenance_mode.body')
-        );
+            'body' => trans('uis_core.error.maintenance_mode.body'),
+        ];
     }
 
     public function getHttpHeaders()
@@ -21,12 +21,13 @@ class MaintenanceModeException extends Exception
         $retryAfter = Config::get('app.maintenance.retry_after');
         if ($retryAfter === null) {
             $retryAfter = $this->defaultRetryAfter;
-        } else if ($retryAfter === false) {
-            return array();
+        } elseif ($retryAfter === false) {
+            return [];
         }
-        return array(
-            'Retry-After' => $retryAfter
-        );
+
+        return [
+            'Retry-After' => $retryAfter,
+        ];
     }
 
     public function getStatus()

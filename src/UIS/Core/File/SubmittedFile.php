@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\File;
 
 class SubmittedFile
@@ -65,4 +66,3 @@ class SubmittedFile
         return $this->tempFile;
     }
 }
-

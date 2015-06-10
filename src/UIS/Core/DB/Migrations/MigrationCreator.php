@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\DB\Migrations;
 
 use Illuminate\Database\Migrations\MigrationCreator as IlluminateMigrationCreator;
@@ -26,6 +27,7 @@ class MigrationCreator extends IlluminateMigrationCreator
     {
         $this->import = $import;
         $name = $import === true ? 'import_database' : $name;
+
         return $this->create($name, $path, $table, $create);
     }
 
@@ -39,11 +41,11 @@ class MigrationCreator extends IlluminateMigrationCreator
     protected function getStub($table, $create)
     {
         if ($this->import === true) {
-            return $this->files->get($this->getStubPath() . '/import.stub');
+            return $this->files->get($this->getStubPath().'/import.stub');
         }
 
         if (is_null($table)) {
-            return $this->files->get($this->getStubPath() . '/blank.stub');
+            return $this->files->get($this->getStubPath().'/blank.stub');
         }
 
         // We also have stubs for creating new tables and modifying existing tables
@@ -52,7 +54,7 @@ class MigrationCreator extends IlluminateMigrationCreator
         else {
             $stub = $create ? 'create.stub' : 'update.stub';
 
-            return $this->files->get($this->getStubPath() . "/{$stub}");
+            return $this->files->get($this->getStubPath()."/{$stub}");
         }
     }
 
@@ -66,6 +68,7 @@ class MigrationCreator extends IlluminateMigrationCreator
         if ($this->import) {
             return __DIR__.'/stubs';
         }
+
         return parent::getStubPath();
     }
 
@@ -79,6 +82,7 @@ class MigrationCreator extends IlluminateMigrationCreator
         if ($this->import) {
             return '2000_01_01_000001';
         }
+
         return parent::getDatePrefix();
     }
 }

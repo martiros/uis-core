@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Locale;
 
 interface LoaderInterface

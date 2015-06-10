@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Foundation;
 
 use DB;
@@ -7,10 +8,10 @@ class Profiler
 {
     protected $options = [
 
-        /** Max size of profile statistics, pass 0 to set unlimited. */
+        /* Max size of profile statistics, pass 0 to set unlimited. */
         'max_size' => 10000,
 
-        /** Set true to enable profiling. */
+        /* Set true to enable profiling. */
         'enabled' => false,
     ];
 

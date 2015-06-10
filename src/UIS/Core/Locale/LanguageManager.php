@@ -1,9 +1,9 @@
 <?php
+
 namespace UIS\Core\Locale;
 
 use App;
 use Carbon\Carbon;
-use Config;
 use DateTime;
 use DB;
 use Illuminate\Translation\Translator;
@@ -40,6 +40,7 @@ class LanguageManager extends Translator
         if ($locale !== null) {
             $this->language = new Language();
             $this->language->code = $locale;
+
             return;
         }
 
@@ -60,7 +61,7 @@ class LanguageManager extends Translator
         $this->locale = $this->language->code;
     }
 
-    public function get($key, array $replace = array(), $locale = null)
+    public function get($key, array $replace = [], $locale = null)
     {
         $locale = $locale === null ? $this->locale : $locale;
         if (isset($this->loadedKeys[$locale][$key])) {
@@ -73,6 +74,7 @@ class LanguageManager extends Translator
         if (isset($this->loadedKeys[$locale][$item])) {
             return $this->getTransLine($this->loadedKeys[$locale][$item], $replace);
         }
+
         return $key;
     }
 
@@ -88,6 +90,7 @@ class LanguageManager extends Translator
                 return false;
             }
         }
+
         return true;
     }
 
@@ -106,7 +109,7 @@ class LanguageManager extends Translator
             if (!$this->canConvertToString($value)) {
                 continue;
             }
-            $line = str_replace('{' . $key . '}', $value, $line);
+            $line = str_replace('{'.$key.'}', $value, $line);
         }
 
         return $line;
@@ -114,12 +117,13 @@ class LanguageManager extends Translator
 
     protected function canConvertToString($item)
     {
-        if ( (!is_array($item)) &&
+        if ((!is_array($item)) &&
              ((!is_object($item) && settype($item, 'string') !== false) ||
              (is_object($item) && method_exists($item, '__toString')))
         ) {
             return true;
         }
+
         return false;
     }
 
@@ -141,18 +145,18 @@ class LanguageManager extends Translator
                     }
                 );
             }
-            $this->notDefinedKeywords = array();
+            $this->notDefinedKeywords = [];
         }
         $appName = uis_app_name();
 
         $hash = sha1("$namespace, $group, $key, $appName");
-        $this->notDefinedKeywords[$hash] = array(
+        $this->notDefinedKeywords[$hash] = [
             'namespace' => $namespace,
             'key' => $key,
             'module' => $group,
             'app_name' => $appName,
             'file' => $filePath,
-        );
+        ];
     }
 
     protected function logNotDefinedKeywords()
@@ -172,7 +176,7 @@ class LanguageManager extends Translator
                 'from_url',
                 'file',
                 'add_date',
-                'ip'
+                'ip',
             ],
             [
                 'key',
@@ -199,7 +203,7 @@ class LanguageManager extends Translator
 
         foreach ($this->notDefinedKeywords as $hash => $data) {
             $insertBuffer->insert(
-                array(
+                [
                     $hash,
                     $data['key'],
                     $data['app_name'],
@@ -208,8 +212,8 @@ class LanguageManager extends Translator
                     $generalData['from_url'],
                     $data['file'],
                     new DateTime(),
-                    $generalData['ip']
-                )
+                    $generalData['ip'],
+                ]
             );
         }
         $insertBuffer->flush();
@@ -234,7 +238,7 @@ class LanguageManager extends Translator
         // lines that have already been loaded so that we can easily access them.
         $loadedKeys = $this->loader->load($locale, $group, $namespace);
 
-        $this->loadedKeys[$locale] = !isset($this->loadedKeys[$locale]) ? array() : $this->loadedKeys[$locale];
+        $this->loadedKeys[$locale] = !isset($this->loadedKeys[$locale]) ? [] : $this->loadedKeys[$locale];
         $this->loadedKeys[$locale] = $this->loadedKeys[$locale] + $loadedKeys;
         $this->loaded[$namespace][$group][$locale] = true;
     }
@@ -242,6 +246,7 @@ class LanguageManager extends Translator
     public function getDictionary($group, $namespace = '*', $locale = null)
     {
         $locale = $locale === null ? $this->locale : $locale;
+
         return $this->loader->load($locale, $group, $namespace);
     }
 
@@ -252,27 +257,29 @@ class LanguageManager extends Translator
     {
         $lastEditInfo = DB::table('dictionary_ml')->select('edit_date')->orderBy('edit_date', 'desc')->first();
         if (empty($lastEditInfo) || $lastEditInfo === '0000-00-00' || $lastEditInfo === '0000-00-00 00:00:00') {
-            return null;
+            return;
         }
         $lastEditInfo = $lastEditInfo->edit_date;
         if (empty($lastEditInfo) || $lastEditInfo === '0000-00-00' || $lastEditInfo === '0000-00-00 00:00:00') {
-            return null;
+            return;
         }
+
         return new Carbon($lastEditInfo);
     }
 
     /**
-     * Get application current language
+     * Get application current language.
      * @return ApplicationLanguage
      */
     public function language()
     {
         $this->detectLanguage();
+
         return $this->language;
     }
 
     /**
-     * Alias of language method
+     * Alias of language method.
      * @return ApplicationLanguage
      */
     public function cLng()
@@ -285,6 +292,7 @@ class LanguageManager extends Translator
         if (!$this->languages) {
             $this->languages = ApplicationLanguage::where('show_status', ApplicationLanguage::STATUS_ACTIVE)->get();
         }
+
         return $this->languages;
     }
 
@@ -300,7 +308,8 @@ class LanguageManager extends Translator
                 return $lang;
             }
         }
-        return null;
+
+        return;
     }
 
     /**
@@ -314,6 +323,7 @@ class LanguageManager extends Translator
                 return $lang;
             }
         }
-        return null;
+
+        return;
     }
 }

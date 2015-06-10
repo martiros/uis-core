@@ -2,9 +2,6 @@
 
 namespace UIS\Core\Controllers;
 
-use Carbon\Carbon;
-use UIS\Core\Exceptions\Exception;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Foundation\Bus\DispatchesCommands;
 use Illuminate\Routing\Controller;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -38,6 +35,7 @@ abstract class BaseController extends Controller
         $validationResult = $request->validateData();
         $this->validatedData = $request->getValidatedData();
         $this->dataToValidate = $request->getDataToValidate();
+
         return $validationResult;
 
 //        $validator = $this->getValidationFactory()->make($request->all(), $rules, $messages, $customAttributes);

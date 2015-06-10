@@ -13,14 +13,14 @@ interface AuthTokenProviderContract
     public function retrieveById($id);
 
     /**
-     * Create new auth token
+     * Create new auth token.
      * @param array $data
      * @return \UIS\Core\Auth\AuthTokenContract
      */
     public function create(array $data);
 
     /**
-     * Delete auth token
+     * Delete auth token.
      * @param int $id
      */
     public function delete($id);

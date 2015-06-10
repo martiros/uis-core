@@ -29,7 +29,7 @@ class UISCoreLanguageSeeder extends Seeder
             return;
         }
 
-        $languagesJsonFile = __DIR__ . '/resources/uis_core_languages.json';
+        $languagesJsonFile = __DIR__.'/resources/uis_core_languages.json';
         $languagesData = json_decode($this->files->get($languagesJsonFile));
         $insertLanguages = [];
         $lngIndex = 0;
@@ -45,7 +45,7 @@ class UISCoreLanguageSeeder extends Seeder
                 'en_name' => $enName,
                 'sort_order' => $lngIndex * 10,
                 'is_default' => $isDefault,
-                'show_status' => BaseModel::STATUS_ACTIVE
+                'show_status' => BaseModel::STATUS_ACTIVE,
             ];
             $lngIndex++;
         }

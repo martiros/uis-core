@@ -1,10 +1,11 @@
-<?php namespace UIS\Core\Page;
+<?php
+
+namespace UIS\Core\Page;
 
 use Illuminate\Support\ServiceProvider;
 
 class PageServiceProvider extends ServiceProvider
 {
-
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -30,7 +31,6 @@ class PageServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array('page', 'uis.core.page.scripts');
+        return ['page', 'uis.core.page.scripts'];
     }
-
 }

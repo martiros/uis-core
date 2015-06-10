@@ -1,4 +1,6 @@
-<?php namespace UIS\Core\Exceptions;
+<?php
+
+namespace UIS\Core\Exceptions;
 
 class PermissionDeniedException extends Exception
 {
@@ -6,7 +8,7 @@ class PermissionDeniedException extends Exception
     {
         return [
             'title' => trans('uis_core.error.forbidden.title'),
-            'body' => trans('uis_core.error.forbidden.body')
+            'body' => trans('uis_core.error.forbidden.body'),
         ];
     }
 

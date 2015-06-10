@@ -3,7 +3,7 @@
 class ServerTest extends TestCase
 {
     /**
-     * Test is server hide X-Powered-By http header
+     * Test is server hide X-Powered-By http header.
      * @return void
      */
     public function testHeaderXPoweredBy()

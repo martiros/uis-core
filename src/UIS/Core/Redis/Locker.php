@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Redis;
 
 use Illuminate\Support\Facades\Redis;
@@ -18,12 +19,13 @@ trait Locker
 
         $notLocked = Redis::setnx(self::getLockKey(), time());
         if (!empty(Redis::getLastError())) {
-            throw new Exception('Redis error-' . Redis::getLastError());
+            throw new Exception('Redis error-'.Redis::getLastError());
         }
 
         if (!$notLocked) {
             return $this->lockAndIgnoreExpiredKey();
         }
+
         return true;
     }
 
@@ -57,8 +59,9 @@ trait Locker
         }
 
         if (!empty(Redis::getLastError())) {
-            throw new UIS_Application_Exception('Redis error - ' . Redis::getLastError());
+            throw new UIS_Application_Exception('Redis error - '.Redis::getLastError());
         }
+
         return boolval($result);
     }
 
@@ -68,7 +71,7 @@ trait Locker
      *      KEYS[1] - lock key
      *      ARGV[1] - time(now in seconds)
      *      ARGV[2] - max lock time
-     * </pre>
+     * </pre>.
      * @return string
      */
     protected static function getCheckLockScript()
@@ -105,7 +108,8 @@ trait Locker
         if ($lockTime === false) {
             return false;
         }
-        return (int)$lockTime;
+
+        return (int) $lockTime;
     }
 
     public function getMaxLockTime()

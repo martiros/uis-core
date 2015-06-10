@@ -1,6 +1,7 @@
-<?php namespace UIS\Core\Page;
+<?php
+
+namespace UIS\Core\Page;
 
 class Styles
 {
-
 }

@@ -6,10 +6,10 @@ class MethodNotAllowed extends Exception
 {
     public function getMessageData()
     {
-        return array(
+        return [
             'title' => trans('uis_core.error.method_not_allowed.title'),
-            'body' => trans('uis_core.error.method_not_allowed.body')
-        );
+            'body' => trans('uis_core.error.method_not_allowed.body'),
+        ];
     }
 
     public function getStatus()

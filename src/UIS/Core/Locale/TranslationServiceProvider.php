@@ -3,8 +3,6 @@
 namespace UIS\Core\Locale;
 
 use Illuminate\Support\ServiceProvider;
-use UIS\Core\Locale\JsFileLoader;
-use UIS\Core\Locale\LanguageManager;
 use Config;
 
 class TranslationServiceProvider extends ServiceProvider
@@ -58,6 +56,7 @@ class TranslationServiceProvider extends ServiceProvider
                 if (empty($path)) {
                     return new FileLoader($app['files'], $app['path.lang']);
                 }
+
                 return new JsFileLoader($app['files'], $path);
             }
         );

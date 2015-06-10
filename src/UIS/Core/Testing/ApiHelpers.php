@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Testing;
 
 use Symfony\Component\HttpFoundation\File\File;
@@ -29,12 +30,14 @@ trait ApiHelpers
         $response = $this->call($method, $uri, $params, $cookies, $files, $server, $content)->getContent();
         $this->assertJson($response, 'Invalid API JSON response.');
         $this->responseObject = json_decode($response);
+
         return $this;
     }
 
     public function apiDump()
     {
         dd($this->responseObject);
+
         return $this;
     }
 
@@ -60,7 +63,7 @@ trait ApiHelpers
 
     public function assertApiStatus($status)
     {
-        $this->assertEquals($status, $this->responseObject->status, print_r((array)$this->responseObject, true));
+        $this->assertEquals($status, $this->responseObject->status, print_r((array) $this->responseObject, true));
     }
 
     protected function uploadFile($filePath, $fileName = null, $error = 0)
@@ -71,15 +74,16 @@ trait ApiHelpers
         $tempFilePath = storage_path('/app/temp_file_for_test_upload');
         $this->getFilesystem()->copy($file->getRealPath(), $tempFilePath, true);
 
-        $file = new UploadedFile($tempFilePath, $fileName, $file->getMimeType(), $file->getSize(), $error, true) ;
+        $file = new UploadedFile($tempFilePath, $fileName, $file->getMimeType(), $file->getSize(), $error, true);
         $this->apiRequest(
             '/api/media/fileUploader/upload',
             'POST',
-            [ '_token' => $this->token() ],
+            ['_token' => $this->token()],
             [],
-            [ 'file' => $file ]
+            ['file' => $file]
         );
         $this->assertApiStatus('OK');
+
         return $this->responseObject->data->file_id;
     }
 
@@ -88,6 +92,7 @@ trait ApiHelpers
         if ($this->fs === null) {
             $this->fs = new Filesystem();
         }
+
         return $this->fs;
     }
 }

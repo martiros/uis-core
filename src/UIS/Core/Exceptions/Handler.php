@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Exceptions;
 
 use App;
@@ -35,7 +36,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        'Symfony\Component\HttpKernel\Exception\HttpException'
+        'Symfony\Component\HttpKernel\Exception\HttpException',
     ];
 
     public function report(PHPException $e)
@@ -52,14 +53,14 @@ class Handler extends ExceptionHandler
      */
     public function render($request, PHPException $e)
     {
-//        $e = new NotSupportedVersionException();
+        //        $e = new NotSupportedVersionException();
 
         $exceptionData = $this->getExceptionData($e);
         $data = [];
         if (!empty($exceptionData['message'])) {
-            $data = array(
-                'message' => $exceptionData['message']
-            );
+            $data = [
+                'message' => $exceptionData['message'],
+            ];
         }
 
         if (Config::get('app.debug')) {
@@ -94,6 +95,7 @@ class Handler extends ExceptionHandler
     {
         $title = isset($data['message']['title']) ? $data['message']['title'] : trans('uis_core.error.unknown.title');
         $body = isset($data['message']['body']) ? $data['message']['body'] : trans('uis_core.error.unknown.body');
+
         return response()->view(
             'errors.base',
             ['title' => $title, 'body' => $body],
@@ -105,13 +107,13 @@ class Handler extends ExceptionHandler
     protected function logException(PHPException $e)
     {
         $logData = $this->getLogData($e);
-        Log::critical('Log ID-' . md5(uniqid(true) . microtime(true)), $logData);
+        Log::critical('Log ID-'.md5(uniqid(true).microtime(true)), $logData);
     }
 
     protected function getLogData(PHPException $e)
     {
         return [
-            'message' => get_class($e) . ': ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine(),
+            'message' => get_class($e).': '.$e->getMessage().' at '.$e->getFile().':'.$e->getLine(),
             'trace' => $e->getTraceAsString(),
             'request_url' => Request::url(),
             'request_method' => Request::method(),
@@ -127,7 +129,7 @@ class Handler extends ExceptionHandler
 
     protected function getExceptionData(PHPException $ex)
     {
-        $exceptionData = array();
+        $exceptionData = [];
         $useDefault = true;
         $exceptionData['validation_result'] = null;
         if ($ex instanceof UISException) {
@@ -173,7 +175,7 @@ class Handler extends ExceptionHandler
         }
 
         if (!isset($exceptionData['http_headers'])) {
-            $exceptionData['http_headers'] = array();
+            $exceptionData['http_headers'] = [];
         }
 
         if (!isset($exceptionData['log'])) {
@@ -204,132 +206,133 @@ class Handler extends ExceptionHandler
                 }
             }
         }
+
         return $errorCodes['APP_ERROR']['data'];
     }
 
     private function getErrorCodes()
     {
-        $errorCodes = array();
+        $errorCodes = [];
 
-        $errorCodes['NOT_FOUND'] = array(
-            'data' => array(
+        $errorCodes['NOT_FOUND'] = [
+            'data' => [
                 'status' => 'NOT_FOUND',
                 'http_status_code' => '404',
-                'message' => array(
+                'message' => [
                     'title' => trans('uis_core.error.not_found.title'),
-                    'body' => trans('uis_core.error.not_found.body')
-                )
-            ),
-            'exception_types' => array(
+                    'body' => trans('uis_core.error.not_found.body'),
+                ],
+            ],
+            'exception_types' => [
                 '\Symfony\Component\HttpKernel\Exception\NotFoundHttpException',
                 '\Illuminate\Database\Eloquent\ModelNotFoundException',
-                '\UIS\Core\Exceptions\NotFoundException'
-            ),
-        );
+                '\UIS\Core\Exceptions\NotFoundException',
+            ],
+        ];
 
-        $errorCodes['FORBIDDEN'] = array(
-            'data' => array(
+        $errorCodes['FORBIDDEN'] = [
+            'data' => [
                 'status' => 'FORBIDDEN',
                 'http_status_code' => '403',
-                'message' => array(
+                'message' => [
                     'title' => trans('uis_core.error.forbidden.title'),
-                    'body' => trans('uis_core.error.forbidden.body')
-                )
-            ),
-            'exception_types' => array(
-                '\UIS\Core\Exceptions\PermissionDeniedException'
-            )
-        );
+                    'body' => trans('uis_core.error.forbidden.body'),
+                ],
+            ],
+            'exception_types' => [
+                '\UIS\Core\Exceptions\PermissionDeniedException',
+            ],
+        ];
 
-        $errorCodes['NOT_AUTH'] = array(
-            'data' => array(
+        $errorCodes['NOT_AUTH'] = [
+            'data' => [
                 'status' => 'NOT_AUTH',
                 'http_status_code' => '401',
-                'message' => array(
+                'message' => [
                     'title' => trans('uis_core.error.not_auth.title'),
-                    'body' => trans('uis_core.error.not_auth.body')
-                )
-            ),
-            'exception_types' => array(
-                '\UIS\Core\Exceptions\NotAuthException'
-            )
-        );
+                    'body' => trans('uis_core.error.not_auth.body'),
+                ],
+            ],
+            'exception_types' => [
+                '\UIS\Core\Exceptions\NotAuthException',
+            ],
+        ];
 
-        $errorCodes['BAD_REQUEST'] = array(
-            'data' => array(
+        $errorCodes['BAD_REQUEST'] = [
+            'data' => [
                 'status' => 'BAD_REQUEST',
                 'http_status_code' => '400',
-                'message' => array(
+                'message' => [
                     'title' => trans('uis_core.error.bad_request.title'),
-                    'body' => trans('uis_core.error.bad_request.body')
-                )
-            ),
-            'exception_types' => array(
-                '\UIS\Core\Exceptions\InvalidDataException'
-            )
-        );
-
+                    'body' => trans('uis_core.error.bad_request.body'),
+                ],
+            ],
+            'exception_types' => [
+                '\UIS\Core\Exceptions\InvalidDataException',
+            ],
+        ];
 
         $maintenanceModeException = new MaintenanceModeException();
-        $errorCodes['MAINTENANCE_MODE'] = array(
-            'data' => array(
+        $errorCodes['MAINTENANCE_MODE'] = [
+            'data' => [
                 'status' => 'MAINTENANCE_MODE',
                 'http_status_code' => '503',
                 'http_headers' => $maintenanceModeException->getHttpHeaders(),
-                'message' => array(
+                'message' => [
                     'title' => trans('uis_core.error.maintenance_mode.title'),
-                    'body' => trans('uis_core.error.maintenance_mode.body')
-                )
-            ),
-            'exception_types' => array(
-                '\UIS\Core\Exceptions\MaintenanceModeException'
-            )
-        );
+                    'body' => trans('uis_core.error.maintenance_mode.body'),
+                ],
+            ],
+            'exception_types' => [
+                '\UIS\Core\Exceptions\MaintenanceModeException',
+            ],
+        ];
 
-        $errorCodes['TOKEN_MISMATCH'] = array(
-            'data' => array(
+        $errorCodes['TOKEN_MISMATCH'] = [
+            'data' => [
                 'status' => 'TOKEN_MISMATCH',
                 'http_status_code' => '200',
-                'message' => array(
+                'message' => [
                     'title' => trans('uis_core.error.token_mismatch.title'),
-                    'body' => trans('uis_core.error.token_mismatch.body')
-                )
-            ),
-            'exception_types' => array(
-                '\Illuminate\Session\TokenMismatchException'
-            )
-        );
+                    'body' => trans('uis_core.error.token_mismatch.body'),
+                ],
+            ],
+            'exception_types' => [
+                '\Illuminate\Session\TokenMismatchException',
+            ],
+        ];
 
-        $errorCodes['METHOD_NOT_ALLOWED'] = array(
-            'data' => array(
+        $errorCodes['METHOD_NOT_ALLOWED'] = [
+            'data' => [
                 'status' => 'METHOD_NOT_ALLOWED',
                 'http_status_code' => '405',
-                'message' => array(
+                'message' => [
                     'title' => trans('uis_core.error.method_not_allowed.title'),
-                    'body' => trans('uis_core.error.method_not_allowed.body')
-                )
-            ),
-            'exception_types' => array(
+                    'body' => trans('uis_core.error.method_not_allowed.body'),
+                ],
+            ],
+            'exception_types' => [
                 '\UIS\Core\Exceptions\MethodNotAllowed',
-                '\Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException'
-            )
-        );
+                '\Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException',
+            ],
+        ];
 
-        $errorCodes['APP_ERROR'] = array(
-            'data' => array(
+        $errorCodes['APP_ERROR'] = [
+            'data' => [
                 'status' => 'APP_ERROR',
                 'http_status_code' => '500',
-                'message' => array(
+                'message' => [
                     'title' => trans('uis_core.error.app_error.title'),
-                    'body' => trans('uis_core.error.app_error.body')
-                ),
-                'log' => true
-            ),
-            'exception_types' => array(
+                    'body' => trans('uis_core.error.app_error.body'),
+                ],
+                'log' => true,
+            ],
+            'exception_types' => [
                 '\Exception',
                 '\UIS\Core\Exceptions\Exception',
-            )
-        );
+            ],
+        ];
+
         return $errorCodes;
     }
 }

@@ -1,4 +1,6 @@
-<?php namespace UIS\Core\Page;
+<?php
+
+namespace UIS\Core\Page;
 
 class Scripts implements ScriptsContract
 {
@@ -15,14 +17,14 @@ class Scripts implements ScriptsContract
     public function appendFile(
         $file,
         $minGroup = 'default',
-        $attributes = array('type' => 'text/javascript')
+        $attributes = ['type' => 'text/javascript']
     ) {
-
         $this->files[$file] = [
-            'file' => $this->getAppendPath() . $file,
+            'file' => $this->getAppendPath().$file,
             'attributes' => $attributes,
-            'minGroup' => $minGroup
+            'minGroup' => $minGroup,
         ];
+
         return $this;
     }
 
@@ -31,6 +33,7 @@ class Scripts implements ScriptsContract
         if (isset($this->files[$file])) {
             unset($this->files[$file]);
         }
+
         return $this;
     }
 
@@ -48,47 +51,47 @@ class Scripts implements ScriptsContract
      */
     public function path($src)
     {
-        return $this->getAppendPath() . $src;
+        return $this->getAppendPath().$src;
     }
 
     /**
-     *  Prepend  script file
+     *  Prepend  script file.
      * @param   string $src
      * @param   array $attrs
      * @return  void
      */
-    public function prependFile($src, $minGroup = 'default', $attrs = array())
+    public function prependFile($src, $minGroup = 'default', $attrs = [])
     {
-        $oldData = array();
-        $oldData[$src] = array(
-            'src' => $this->getAppendPath() . $src,
+        $oldData = [];
+        $oldData[$src] = [
+            'src' => $this->getAppendPath().$src,
             'attributes' => $attrs,
-            'minGroup' => $minGroup
-        );
-        foreach ($this->files AS $key => $value) {
+            'minGroup' => $minGroup,
+        ];
+        foreach ($this->files as $key => $value) {
             $oldData[$key] = $value;
         }
         $this->files = $oldData;
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isSetFile($src)
     {
         if (isset($this->files[$src])) {
             return true;
         }
+
         return false;
     }
-
 
     public function getVersion()
     {
         return '1.0.0';
+
         return $this->cacheVersion;
     }
-
 
     /**
      * @return string
@@ -98,23 +101,23 @@ class Scripts implements ScriptsContract
         $static_js = '';
 
         $scriptStr = '';
-        foreach ($this->files AS $key => $script) {
-            $attrStr = "";
+        foreach ($this->files as $key => $script) {
+            $attrStr = '';
 //            uis_dump($script);
-            foreach ($script['attributes'] AS $attrKey => $attrValue) {
+            foreach ($script['attributes'] as $attrKey => $attrValue) {
                 $attrStr .= "  $attrKey = \"$attrValue\" ";
             }
 
-
             $script['file'] .= '.js';
             if (strpos($script['file'], '?') === false) {
-                $script['file'] = ($static_js) . $script['file'] . '?q=' . $this->getVersion();
+                $script['file'] = ($static_js).$script['file'].'?q='.$this->getVersion();
             } else {
-                $script['file'] = ($static_js) . $script['file'] . '&q=' . $this->getVersion();
+                $script['file'] = ($static_js).$script['file'].'&q='.$this->getVersion();
             }
 
             $scriptStr .= " <script src=\"{$script['file']}\"  $attrStr ></script> \n\r ";
         }
+
         return $scriptStr;
     }
 }

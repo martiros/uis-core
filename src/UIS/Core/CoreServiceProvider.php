@@ -1,4 +1,6 @@
-<?php namespace UIS\Core;
+<?php
+
+namespace UIS\Core;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
@@ -10,7 +12,6 @@ use UIS\Core\Locale\LanguageManager;
 
 class CoreServiceProvider extends ServiceProvider
 {
-
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -30,9 +31,8 @@ class CoreServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../../resources/templates', 'uis_core');
 
-
 //        $this->package('u-is/core');
-        require __DIR__ . '/../../routes.php';
+        require __DIR__.'/../../routes.php';
     }
 
     /**
@@ -45,7 +45,7 @@ class CoreServiceProvider extends ServiceProvider
         if (App::runningInConsole()) {
             $this->commands('UIS\Core\Foundation\Console\ClearOldDataCommand');
         }
-        
+
         $this->registerLoader();
 
         $this->app->bindShared(
@@ -69,6 +69,7 @@ class CoreServiceProvider extends ServiceProvider
             'uis.app',
             function () {
                 $app = new \UIS\Core\Foundation\Application();
+
                 return $app;
             }
         );
@@ -98,7 +99,6 @@ class CoreServiceProvider extends ServiceProvider
                 app('uis.app')->profileEnd();
             }
         );
-
     }
 
     /**
@@ -115,6 +115,7 @@ class CoreServiceProvider extends ServiceProvider
                 if (empty($path)) {
                     return new \Illuminate\Translation\FileLoader($app['files'], $path);
                 }
+
                 return new \UIS\Core\Locale\JsFileLoader($app['files'], $path);
             }
         );
@@ -127,7 +128,7 @@ class CoreServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array('translator', 'translation.loader', 'uis.app');
+        return ['translator', 'translation.loader', 'uis.app'];
     }
 
     protected function registerLogger()
@@ -145,7 +146,6 @@ class CoreServiceProvider extends ServiceProvider
         );
     }
 
-
     /******************************************************************************************************************/
     /******************************************************************************************************************/
     /******************************************************************************************************************/
@@ -158,19 +158,19 @@ class CoreServiceProvider extends ServiceProvider
 
     protected function publishMigrations()
     {
-        $pathToPackage = __DIR__ . '/../..';
+        $pathToPackage = __DIR__.'/../..';
 
         // Publish migrations
-        $this->publishes([ $pathToPackage . '/database/migrations' => base_path('/database/migrations')], 'migrations');
+        $this->publishes([$pathToPackage.'/database/migrations' => base_path('/database/migrations')], 'migrations');
 
         // Publish seeds
-        $this->publishes([ $pathToPackage . '/database/seeds' => base_path('/database/seeds')], 'migrations');
+        $this->publishes([$pathToPackage.'/database/seeds' => base_path('/database/seeds')], 'migrations');
     }
 
     protected function publishViews()
     {
-        $pathToPackage = __DIR__ . '/../..';
+        $pathToPackage = __DIR__.'/../..';
 
-        $this->publishes([ $pathToPackage . '/resources/stub_templates' => base_path('/resources/templates')], 'templates');
+        $this->publishes([$pathToPackage.'/resources/stub_templates' => base_path('/resources/templates')], 'templates');
     }
 }

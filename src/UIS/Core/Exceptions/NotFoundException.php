@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Exceptions;
 
 class NotFoundException extends CatchableException
@@ -7,7 +8,7 @@ class NotFoundException extends CatchableException
     {
         return [
             'title' => trans('uis_core.error.not_found.title'),
-            'body' => trans('uis_core.error.not_found.body')
+            'body' => trans('uis_core.error.not_found.body'),
         ];
     }
 

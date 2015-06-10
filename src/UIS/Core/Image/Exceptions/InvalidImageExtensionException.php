@@ -1,4 +1,6 @@
-<?php namespace UIS\Core\Image\Exceptions;
+<?php
+
+namespace UIS\Core\Image\Exceptions;
 
 use UIS\Core\Exceptions\CatchableException;
 
@@ -17,8 +19,8 @@ class InvalidImageExtensionException extends CatchableException
     {
         return [
             'file' => trans('uis_core.error.file_upload.invalid_extension', [
-                'allowed_extensions' => implode(', ', $this->getAllowedExtensions())
-            ])
+                'allowed_extensions' => implode(', ', $this->getAllowedExtensions()),
+            ]),
         ];
     }
 
@@ -36,5 +38,4 @@ class InvalidImageExtensionException extends CatchableException
     {
         $this->allowedExtensions = $allowedExtensions;
     }
-
 }

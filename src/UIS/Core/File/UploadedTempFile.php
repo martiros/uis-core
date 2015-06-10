@@ -1,4 +1,6 @@
-<?php namespace UIS\Core\File;
+<?php
+
+namespace UIS\Core\File;
 
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File;
@@ -13,7 +15,7 @@ class UploadedTempFile extends File
         'created_at' => null,
         'uploader_key' => null,
         'uploader_type' => null,
-        'uploaded_by_id' => null
+        'uploaded_by_id' => null,
     ];
 
     public function __construct(array $data)

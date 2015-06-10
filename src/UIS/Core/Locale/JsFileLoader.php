@@ -3,10 +3,11 @@
 namespace UIS\Core\Locale;
 
 use Illuminate\Filesystem\Filesystem;
+
 //use Illuminate\Translation\LoaderInterface;
 
-class JsFileLoader implements LoaderInterface {
-
+class JsFileLoader implements LoaderInterface
+{
     /**
      * The filesystem instance.
      *
@@ -26,7 +27,7 @@ class JsFileLoader implements LoaderInterface {
      *
      * @var array
      */
-    protected $hints = array();
+    protected $hints = [];
 
     /**
      * Create a new file loader instance.
@@ -67,10 +68,11 @@ class JsFileLoader implements LoaderInterface {
     {
         $path = $path.$group.DIRECTORY_SEPARATOR.$locale.'.js';
         if (!file_exists($path)) {
-            return array();
+            return [];
         }
         $data = json_decode(file_get_contents($path), true);
-        $data = is_array($data) ? $data : array();
+        $data = is_array($data) ? $data : [];
+
         return $data;
     }
 
@@ -85,5 +87,4 @@ class JsFileLoader implements LoaderInterface {
     {
         $this->hints[$namespace] = $hint;
     }
-
 }

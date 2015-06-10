@@ -1,4 +1,6 @@
-<?php namespace UIS\Core\Controllers\Api;
+<?php
+
+namespace UIS\Core\Controllers\Api;
 
 use UIS\Core\Controllers\BaseController;
 use UIS\Core\File\Uploader;
@@ -18,9 +20,8 @@ class FileUploaderController extends BaseController
         return $this->api(
             'OK',
             [
-                'file_id' => $uploadedFileId
+                'file_id' => $uploadedFileId,
             ]
         );
     }
 }
-

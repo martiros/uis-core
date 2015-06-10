@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Locale\Exceptions;
 
 use UIS\Core\Exceptions\CatchableException;
@@ -14,7 +15,7 @@ class LanguageNotFound extends CatchableException
     {
         return [
             'title' => trans('uis_core.error.language_not_found.title'),
-            'body' => trans('uis_core.error.language_not_found.body')
+            'body' => trans('uis_core.error.language_not_found.body'),
         ];
     }
 }

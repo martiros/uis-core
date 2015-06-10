@@ -3,7 +3,8 @@
 namespace UIS\Core\Foundation;
 
 use Illuminate\Support\Facades\Config;
-use DB, DateTime;
+use DB;
+use DateTime;
 
 class Application
 {
@@ -56,7 +57,7 @@ class Application
         $this->profileLog .= print_r($_SERVER, true);
 
         DB::table('app_profile')->insert(
-            array(
+            [
                 'url' => $url,
                 'total_duration' => round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 5),
                 'app_logic_duration' => round(microtime(true) - $this->runTime, 5),
@@ -65,8 +66,8 @@ class Application
                 'memory_usage' => round(memory_get_usage() / 1048576, 5),
                 'included_files_count' => count($includedFiles),
                 'run_date' => $runDate,
-                'log' => $this->profileLog
-            )
+                'log' => $this->profileLog,
+            ]
         );
     }
 
@@ -74,8 +75,8 @@ class Application
     {
         $this->profileIndex++;
         $profileString = 'STEP '.$this->profileIndex.': '.$profileString;
-        $profileString .= ', from last profile - '.( microtime(true) - $this->lastProfileTime );
-        $profileString .= ', from start - '.( microtime(true) - $this->runTime );
+        $profileString .= ', from last profile - '.(microtime(true) - $this->lastProfileTime);
+        $profileString .= ', from start - '.(microtime(true) - $this->runTime);
         if (empty($this->profileLog)) {
             $this->profileLog .= $profileString;
         } else {
@@ -96,6 +97,7 @@ class Application
     public function getName()
     {
         $appName = Config::get('app.uis_app_name');
+
         return $appName ?: 'application';
     }
 }

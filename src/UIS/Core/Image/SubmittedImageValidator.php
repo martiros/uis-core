@@ -1,7 +1,7 @@
 <?php
+
 namespace UIS\Core\Image;
 
-use Auth;
 use UIS\Mvf\ValidatorTypes\Int;
 
 class SubmittedImageValidator extends Int
@@ -13,11 +13,12 @@ class SubmittedImageValidator extends Int
         $this->setVarValue($submittedImage);
         if (empty($submittedImageValue)) {
             $submittedImage->setImageType(SubmittedImage::FILE_TYPE_EMPTY);
-        } else if ($submittedImageValue === 'same') {
+        } elseif ($submittedImageValue === 'same') {
             $submittedImage->setImageType(SubmittedImage::FILE_TYPE_SAME);
         } else {
             return $this->validateTempImage($submittedImage, $submittedImageValue);
         }
+
         return $this->makeValid();
     }
 
@@ -29,6 +30,7 @@ class SubmittedImageValidator extends Int
         }
         $submittedImage->setImageType(SubmittedImage::FILE_TYPE_NEW);
         $submittedImage->setTempImage($tempFile);
+
         return $this->makeValid();
     }
 

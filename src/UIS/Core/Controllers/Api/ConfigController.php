@@ -4,7 +4,8 @@ namespace UIS\Core\Controllers\Api;
 
 use UIS\Core\Controllers\BaseController;
 use Illuminate\Foundation\Application;
-use Lang, Config;
+use Lang;
+use Config;
 
 class ConfigController extends BaseController
 {
@@ -23,7 +24,7 @@ class ConfigController extends BaseController
 
     public function config()
     {
-        $apiResultData = array();
+        $apiResultData = [];
         $apiConfig = Config::get('api');
         if (!empty($apiConfig)) {
             if (isset($apiConfig['data'])) {
@@ -42,12 +43,13 @@ class ConfigController extends BaseController
         }
 
         if (!isset($apiResultData['config'])) {
-            $apiResultData['config'] = array();
+            $apiResultData['config'] = [];
         }
 
         if (!array_key_exists('dictionary_last_update_date', $apiResultData['config'])) {
             $apiResultData['config']['dictionary_last_update_date'] = Lang::getDictionaryLastUpdateDate();
         }
+
         return $this->api('OK', $apiResultData);
     }
 
@@ -58,10 +60,11 @@ class ConfigController extends BaseController
     public function dictionary()
     {
         $group = 'mobile';
-        $data = array(
+        $data = [
             'dictionary' => Lang::getDictionary($group),
-            'dictionary_last_update_date' => Lang::getDictionaryLastUpdateDate()
-        );
+            'dictionary_last_update_date' => Lang::getDictionaryLastUpdateDate(),
+        ];
+
         return $this->api('OK', $data);
     }
 }

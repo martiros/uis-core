@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateDictionaryNdkTable extends Migration {
-
+class CreateDictionaryNdkTable extends Migration
+{
     /**
      * Run the migrations.
      *
@@ -37,5 +36,4 @@ class CreateDictionaryNdkTable extends Migration {
     {
         Schema::drop('dictionary_ndk');
     }
-
 }

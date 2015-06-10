@@ -2,7 +2,7 @@
 
 function sc_string($string)
 {
-    return htmlspecialchars($string , ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
 }
 
 function sc_string_decode($string)
@@ -18,7 +18,7 @@ function sc_url_param($string)
 function uis_dump()
 {
     $args = func_get_args();
-    foreach( $args AS $argIndex => $arg ){
+    foreach ($args as $argIndex => $arg) {
         echo '<br/><b>PARAM-'.$argIndex.'</b><br/>';
         echo '<pre>';
         print_r($arg);
@@ -36,14 +36,14 @@ function uis_app_name()
 
 function images_path()
 {
-    return public_path() . '/' . 'images';
+    return public_path().'/'.'images';
 }
 
 /**********************************************************************************************************************/
 /**********************************************************************************************************************/
 /**********************************************************************************************************************/
 
-function show_date(DateTime $date, $showTime=true)
+function show_date(DateTime $date, $showTime = true)
 {
     return $date->format('H:i d/m/Y');
 }

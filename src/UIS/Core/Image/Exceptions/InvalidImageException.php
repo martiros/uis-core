@@ -1,4 +1,6 @@
-<?php namespace UIS\Core\Image\Exceptions;
+<?php
+
+namespace UIS\Core\Image\Exceptions;
 
 use UIS\Core\Exceptions\NotFoundException;
 

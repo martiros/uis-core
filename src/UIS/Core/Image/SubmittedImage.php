@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Image;
 
 use UIS\Core\File\SubmittedFile;
@@ -40,4 +41,3 @@ class SubmittedImage extends SubmittedFile
         return $this->getTempFile();
     }
 }
-

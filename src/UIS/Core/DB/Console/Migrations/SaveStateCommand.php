@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\DB\Console\Migrations;
 
 use Illuminate\Console\ConfirmableTrait;
@@ -60,7 +61,7 @@ class SaveStateCommand extends BaseCommand
         // we will use the path relative to the root of this installation folder
         // so that migrations may be run for any path within the applications.
         if (!is_null($path = $this->input->getOption('path'))) {
-            $path = $this->laravel['path.base'] . '/' . $path;
+            $path = $this->laravel['path.base'].'/'.$path;
         } else {
             $path = $this->getMigrationPath();
         }

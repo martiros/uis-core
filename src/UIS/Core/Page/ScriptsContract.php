@@ -1,4 +1,6 @@
-<?php namespace UIS\Core\Page;
+<?php
+
+namespace UIS\Core\Page;
 
 interface ScriptsContract
 {
@@ -10,7 +12,7 @@ interface ScriptsContract
 
     public function removeFile($file);
 
-    public function prependFile($src, $minGroup = 'default', $attributes = array());
+    public function prependFile($src, $minGroup = 'default', $attributes = []);
 
     public function isSetFile($src);
 

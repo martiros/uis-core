@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Locale\TranslatesCodeDetector;
 
 use Illuminate\Filesystem\Filesystem;
@@ -21,6 +22,7 @@ abstract class Detector
                 return true;
             }
         }
+
         return false;
     }
 }

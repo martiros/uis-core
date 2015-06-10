@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Sphinx;
 
 use InvalidArgumentException;
@@ -17,7 +18,7 @@ class SphinxManager// implements ConnectionResolverInterface
      *
      * @var array
      */
-    protected $extensions = array();
+    protected $extensions = [];
 
     /**
      * The active connection instances.
@@ -48,6 +49,7 @@ class SphinxManager// implements ConnectionResolverInterface
         if (!isset($this->connections[$name])) {
             $this->connections[$name] = $this->makeConnection($name);
         }
+
         return $this->connections[$name];
     }
 
@@ -70,8 +72,7 @@ class SphinxManager// implements ConnectionResolverInterface
     protected function makeConnection($name)
     {
         $config = $this->getConfig($name);
-        if (isset($this->extensions[$name]))
-        {
+        if (isset($this->extensions[$name])) {
             return call_user_func($this->extensions[$name], $config, $name);
         }
         dd($config);
@@ -94,8 +95,7 @@ class SphinxManager// implements ConnectionResolverInterface
         // If the configuration doesn't exist, we'll throw an exception and bail.
         $connections = $this->app['config']['sphinx.connections'];
 
-        if (is_null($config = array_get($connections, $name)))
-        {
+        if (is_null($config = array_get($connections, $name))) {
             throw new InvalidArgumentException("Sphinx [$name] not configured.");
         }
 
@@ -139,17 +139,6 @@ class SphinxManager// implements ConnectionResolverInterface
     /***************************************************************************************/
     /***************************************************************************************/
 
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Dynamically pass methods to the default connection.
      *
@@ -159,7 +148,6 @@ class SphinxManager// implements ConnectionResolverInterface
      */
     public function __call($method, $parameters)
     {
-        return call_user_func_array(array($this->connection(), $method), $parameters);
+        return call_user_func_array([$this->connection(), $method], $parameters);
     }
-
 }

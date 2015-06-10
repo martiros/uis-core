@@ -18,7 +18,7 @@ class CreateLanguagesTable extends Migration
             return;
         }
 
-        $schemaBuilder->create('language', function(Blueprint $table){
+        $schemaBuilder->create('language', function (Blueprint $table) {
             $table->smallInteger('id', true, true);
             $table->string('code', 3);
             $table->string('name');
@@ -37,7 +37,7 @@ class CreateLanguagesTable extends Migration
     public function down()
     {
         $schemaBuilder = $this->getSchemaBuilder();
-        if (!$schemaBuilder->hasTable('language')){
+        if (!$schemaBuilder->hasTable('language')) {
             return;
         }
         $schemaBuilder->drop('language');

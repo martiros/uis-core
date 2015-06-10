@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\DB\Console\Migrations;
 
 use Illuminate\Foundation\Composer;
@@ -83,7 +84,7 @@ class MigrateMakeCommand extends IlluminateMigrateMakeCommand
     {
         $options = parent::getOptions();
         $options[] = ['import', null, InputOption::VALUE_NONE, 'Create import migration.'];
+
         return $options;
     }
-
 }

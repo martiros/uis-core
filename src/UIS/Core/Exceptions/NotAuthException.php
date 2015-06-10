@@ -6,10 +6,10 @@ class NotAuthException extends Exception
 {
     public function getMessageData()
     {
-        return array(
+        return [
             'title' => trans('uis_core.error.not_auth.title'),
-            'body' => trans('uis_core.error.not_auth.body')
-        );
+            'body' => trans('uis_core.error.not_auth.body'),
+        ];
     }
 
     public function getStatus()

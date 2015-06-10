@@ -3,17 +3,17 @@
 namespace UIS\Core\DB\Schema;
 
 use Illuminate\Database\Schema\Blueprint as IlluminateBlueprint;
-use \UIS\Core\Models\BaseModel;
+use UIS\Core\Models\BaseModel;
 
 class Blueprint extends IlluminateBlueprint
 {
     public function showStatus($addLogInfo = true)
     {
-        $this->enum('show_status', array(
+        $this->enum('show_status', [
             BaseModel::STATUS_ACTIVE,
             BaseModel::STATUS_INACTIVE,
-            BaseModel::STATUS_DELETED
-        ));
+            BaseModel::STATUS_DELETED,
+        ]);
 
         if ($addLogInfo === true) {
             $this->timestamp('created_at')->nullable();

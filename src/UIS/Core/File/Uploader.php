@@ -1,16 +1,15 @@
-<?php namespace UIS\Core\File;
+<?php
+
+namespace UIS\Core\File;
 
 use UIS\Core\File\Exceptions\FileNotFoundException;
-use Auth, DB;
+use Auth;
+use DB;
 use Illuminate\Support\Facades\Request;
 use UIS\Core\File\Exceptions\UnableCreateDirException;
-use UIS\Core\File\UploadedFile;
-
-
 use Carbon\Carbon;
 use UIS\Core\Image\Exceptions\ImageNotFoundException;
 use UIS\Core\Image\Exceptions\InvalidFileMaxSizeException;
-use UIS\Core\Image\Exceptions\InvalidImageException;
 use UIS\Core\Image\Exceptions\InvalidImageExtensionException;
 
 class Uploader
@@ -19,7 +18,7 @@ class Uploader
 
     protected $options = [
         'file_max_size' => 5,
-        'extensions' => ['jpg', 'jpeg', 'png', 'pdf', 'zip', 'doc', 'docx', 'txt']
+        'extensions' => ['jpg', 'jpeg', 'png', 'pdf', 'zip', 'doc', 'docx', 'txt'],
     ];
 
     public function getUploaderKey()
@@ -72,7 +71,8 @@ class Uploader
             if ($findOrFail) {
                 throw new FileNotFoundException();
             }
-            return null;
+
+            return;
         }
         $fileData = unserialize($fileData->file_data);
 
@@ -84,8 +84,10 @@ class Uploader
             if ($findOrFail) {
                 throw new FileNotFoundException();
             }
-            return null;
+
+            return;
         }
+
         return $file;
     }
 
@@ -102,6 +104,7 @@ class Uploader
             $e->setErrorKey($imageKey);
             throw $e;
         }
+
         return new UploadedFile($file);
     }
 
@@ -112,20 +115,22 @@ class Uploader
     protected function getStoragePath()
     {
         $path = storage_path('app');
-        $imagesStoragePath = $path . '/' .'uploaded_files';
+        $imagesStoragePath = $path.'/'.'uploaded_files';
         if (!file_exists($imagesStoragePath) && !mkdir($imagesStoragePath, 0777)) {
-            throw new UnableCreateDirException('Unable create dir-' . $imagesStoragePath);
+            throw new UnableCreateDirException('Unable create dir-'.$imagesStoragePath);
         }
+
         return $imagesStoragePath;
     }
 
     protected function createTempSubDir()
     {
         $tempDirSubFolder = rand(1, 7000);
-        $tempDirSub = $this->getStoragePath() . '/' . $tempDirSubFolder;
+        $tempDirSub = $this->getStoragePath().'/'.$tempDirSubFolder;
         if (!file_exists($tempDirSub) && !mkdir($tempDirSub, 0777)) {
-            throw new UnableCreateDirException('Unable create dir-' . $tempDirSub);
+            throw new UnableCreateDirException('Unable create dir-'.$tempDirSub);
         }
+
         return $tempDirSubFolder;
     }
 
@@ -137,8 +142,8 @@ class Uploader
         }
         $fileMaxSize *= 1048576;
         $size = $file->getSize();
-        if ( $fileMaxSize < $size ) {
-            $e = new InvalidFileMaxSizeException('Invalid file size -' . $size);
+        if ($fileMaxSize < $size) {
+            $e = new InvalidFileMaxSizeException('Invalid file size -'.$size);
             $e->setMaxSize($fileMaxSize);
             $e->setFileSize($size);
             throw $e;
@@ -158,13 +163,13 @@ class Uploader
 
         $uploadedFile = $this->getUploadedFile($image);
         $tempSubDirFolder = $this->createTempSubDir();
-        $moveToTempDirectory = $this->getStoragePath() . '/' . $tempSubDirFolder;
+        $moveToTempDirectory = $this->getStoragePath().'/'.$tempSubDirFolder;
 
         // @throws InvalidFileMaxSizeException
         $this->validateFileSize($uploadedFile);
 
         // @throws Media_ImgUploader_Exception_InvalidExtension, @throws Media_ImgUploader_Exception_InvalidImage
-        $extension = $this->getFileExtension( $uploadedFile );
+        $extension = $this->getFileExtension($uploadedFile);
 
         $userId = Auth::user()->id;
         $id = DB::table('uploaded_files')->insertGetId([
@@ -172,7 +177,7 @@ class Uploader
             'created_at' => new Carbon(),
             'uploader_key' => $this->getUploaderKey(),
             'uploader_type' => $this->getUploaderType(),
-            'uploaded_by_id' => $userId
+            'uploaded_by_id' => $userId,
         ]);
 
         $fileData = [
@@ -183,19 +188,19 @@ class Uploader
             'created_at' => new Carbon(),
             'uploader_key' => $this->getUploaderKey(),
             'uploader_type' => $this->getUploaderType(),
-            'uploaded_by_id' => $userId
+            'uploaded_by_id' => $userId,
         ];
-        $fileData['file_path'] = $uploadedFile->move($moveToTempDirectory, $id . '.' . $extension);
+        $fileData['file_path'] = $uploadedFile->move($moveToTempDirectory, $id.'.'.$extension);
 
         DB::table('uploaded_files')
             ->where('id', $id)
             ->update([
                 'file_data' => serialize($fileData),
-                'file_path' => $tempSubDirFolder . '/' .  $id . '.' . $extension
+                'file_path' => $tempSubDirFolder.'/'.$id.'.'.$extension,
             ]);
+
         return $id;
     }
-
 
     protected function getFileExtension(UploadedFile $file)
     {
@@ -205,8 +210,7 @@ class Uploader
             $e->setAllowedExtensions($this->getAllowedExtensions());
             throw $e;
         }
+
         return $extension;
     }
 }
-
-

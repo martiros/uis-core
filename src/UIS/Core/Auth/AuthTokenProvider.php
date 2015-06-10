@@ -2,8 +2,6 @@
 
 namespace UIS\Core\Auth;
 
-use Illuminate\Auth\EloquentUserProvider as LaravelEloquentUserProvider;
-
 class AuthTokenProvider implements AuthTokenProviderContract
 {
     /**
@@ -34,6 +32,7 @@ class AuthTokenProvider implements AuthTokenProviderContract
     {
         $model = $this->createModel();
         $model->fill($data)->save();
+
         return $model;
     }
 

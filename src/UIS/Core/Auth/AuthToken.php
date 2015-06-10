@@ -4,7 +4,6 @@ namespace UIS\Core\Auth;
 
 use Carbon\Carbon;
 use UIS\Core\Models\BaseModel;
-use Illuminate\Support\Str;
 
 class AuthToken extends BaseModel implements AuthTokenContract
 {
@@ -15,11 +14,11 @@ class AuthToken extends BaseModel implements AuthTokenContract
     protected $fillable = [
         'token',
         'user_id',
-        'expire_date'
+        'expire_date',
     ];
 
     protected $dates = [
-        'expire_date'
+        'expire_date',
     ];
 
     public function getTokenIdentifier()
@@ -38,6 +37,7 @@ class AuthToken extends BaseModel implements AuthTokenContract
         if ($now->lt($this->expire_date)) {
             return true;
         }
+
         return false;
     }
 }

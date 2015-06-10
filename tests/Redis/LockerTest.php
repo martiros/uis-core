@@ -1,4 +1,5 @@
 <?php
+
 use UIS\Core\Redis\Locker;
 use Illuminate\Support\Facades\Redis;
 

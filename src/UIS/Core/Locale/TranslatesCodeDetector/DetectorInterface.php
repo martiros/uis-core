@@ -1,10 +1,11 @@
 <?php
+
 namespace UIS\Core\Locale\TranslatesCodeDetector;
 
 interface CompilerInterface
 {
     /**
-     * Get possible translate keys from file
+     * Get possible translate keys from file.
      *
      * @param  string $path
      * @return array

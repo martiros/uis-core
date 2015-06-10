@@ -7,7 +7,6 @@ use Carbon\Carbon;
 use Illuminate\Auth\Guard as IlluminateGuard;
 use Illuminate\Contracts\Auth\Authenticatable as UserContract;
 use Illuminate\Support\Str;
-use UIS\Core\Auth\AuthTokenProviderContract;
 use Illuminate\Contracts\Auth\UserProvider;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,15 +59,16 @@ class Guard extends IlluminateGuard
     protected function createRememberTokenIfDoesntExist(UserContract $user)
     {
         if ($this->hasActiveRememberToken($user)) {
-            return null;
+            return;
         }
 
         $expireDate = new Carbon();
         $expireDate->addMonth();
+
         return $this->authTokenProvider->create([
                     'token' => str_random(60),
                     'user_id' => $user->id,
-                    'expire_date' => $expireDate
+                    'expire_date' => $expireDate,
                 ]);
     }
 
@@ -93,6 +93,7 @@ class Guard extends IlluminateGuard
 
         if (!$token->isActiveToken()) {
             $this->authTokenProvider->delete($recallerId);
+
             return false;
         }
 
@@ -170,9 +171,10 @@ class Guard extends IlluminateGuard
 
         $this->lastAttempted = $user;
 
-        if ($this->hasValidCredentials($user, $credentials))
-        {
-            if ($login) $this->login($user, $remember);
+        if ($this->hasValidCredentials($user, $credentials)) {
+            if ($login) {
+                $this->login($user, $remember);
+            }
 
             return true;
         }
@@ -188,13 +190,12 @@ class Guard extends IlluminateGuard
      */
     protected function getUserByRecaller($recaller)
     {
-        if ($this->validRecaller($recaller) && ! $this->tokenRetrievalAttempted)
-        {
+        if ($this->validRecaller($recaller) && !$this->tokenRetrievalAttempted) {
             $this->tokenRetrievalAttempted = true;
 
             list($tokenId, $token) = explode('|', $recaller, 2);
 
-            $this->viaRemember = ! is_null($user = $this->retrieveUserByToken($tokenId, $token));
+            $this->viaRemember = !is_null($user = $this->retrieveUserByToken($tokenId, $token));
 
             return $user;
         }
@@ -226,7 +227,7 @@ class Guard extends IlluminateGuard
 
     protected function validRecaller($recaller)
     {
-        if ( ! is_string($recaller) || ! str_contains($recaller, '|')) {
+        if (!is_string($recaller) || !str_contains($recaller, '|')) {
             return false;
         }
 

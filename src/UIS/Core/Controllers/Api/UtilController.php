@@ -2,8 +2,6 @@
 
 namespace UIS\Core\Controllers\Api;
 
-use Config;
-use Lang;
 use UIS\Core\Controllers\BaseController;
 
 class UtilController extends BaseController
@@ -12,9 +10,9 @@ class UtilController extends BaseController
     {
         return $this->api(
             'OK',
-            array(
-                'token' => csrf_token()
-            )
+            [
+                'token' => csrf_token(),
+            ]
         );
     }
 }

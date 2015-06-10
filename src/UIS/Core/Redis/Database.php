@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\Redis;
 
 use Doctrine\Instantiator\Exception\InvalidArgumentException;
@@ -22,7 +23,7 @@ class Database implements DatabaseContract
     public function __construct(array $servers = [])
     {
         if (isset($servers['cluster']) && $servers['cluster']) {
-            throw new InvalidArgumentException("Redis cluster not implemented.");
+            throw new InvalidArgumentException('Redis cluster not implemented.');
         } else {
             $this->clients = $this->createSingleClients($servers);
         }
@@ -42,6 +43,7 @@ class Database implements DatabaseContract
             $clients[$key] = new RedisClient();
             $clients[$key]->connect($server['host'], $server['port']);
         }
+
         return $clients;
     }
 
@@ -63,9 +65,9 @@ class Database implements DatabaseContract
      * @param  array $parameters
      * @return mixed
      */
-    public function command($method, array $parameters = array())
+    public function command($method, array $parameters = [])
     {
-        return call_user_func_array(array($this->clients['default'], $method), $parameters);
+        return call_user_func_array([$this->clients['default'], $method], $parameters);
     }
 
     /**
@@ -79,5 +81,4 @@ class Database implements DatabaseContract
     {
         return $this->command($method, $parameters);
     }
-
 }

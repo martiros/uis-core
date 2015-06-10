@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\DB\Migrations;
 
 use Illuminate\Database\Migrations\MigrationRepositoryInterface;
@@ -46,7 +47,7 @@ class StateSaver
     protected $notes = [];
 
     /**
-     * Max db size, allowed to dump in MB
+     * Max db size, allowed to dump in MB.
      * @var int
      */
     protected $maxDbSize = 20;
@@ -71,7 +72,7 @@ class StateSaver
         $this->files = $files;
         $this->resolver = $resolver;
         $this->repository = $repository;
-        $this->connectionOptions = config('database.connections.' . config('database.default'));
+        $this->connectionOptions = config('database.connections.'.config('database.default'));
     }
 
     /**
@@ -88,7 +89,8 @@ class StateSaver
 
         $dbSize = $this->getDatabaseSize();
         if ($dbSize > $this->maxDbSize) {
-            $this->note('<error>Too big database for dump - ' . $dbSize . ' MB.</error>');
+            $this->note('<error>Too big database for dump - '.$dbSize.' MB.</error>');
+
             return;
         }
 
@@ -103,29 +105,30 @@ class StateSaver
     {
         $files = $this->getMigrationFiles($path);
         $ran = $this->repository->getRan();
+
         return array_intersect($files, $ran);
     }
 
     protected function archiveFiles($path, $migrations)
     {
-        $archivePath = storage_path('/archive/migrations/' . date('Y_m_d_His'));
+        $archivePath = storage_path('/archive/migrations/'.date('Y_m_d_His'));
         $this->files->makeDirectory($archivePath, 0775, true);
 
         foreach ($migrations as $migrationFile) {
             $this->files->move(
-                $path . '/' . $migrationFile . '.php',
-                $archivePath . '/' . $migrationFile . '.php'
+                $path.'/'.$migrationFile.'.php',
+                $archivePath.'/'.$migrationFile.'.php'
             );
         }
 
-        if ($this->files->isFile($path . '/db.sql')) {
+        if ($this->files->isFile($path.'/db.sql')) {
             $this->files->move(
-                $path . '/db.sql',
-                $archivePath . '/db.sql'
+                $path.'/db.sql',
+                $archivePath.'/db.sql'
             );
         }
         $connection = $this->resolver->connection();
-        $connection->statement('TRUNCATE TABLE ' . $connection->getTablePrefix() . 'migrations');
+        $connection->statement('TRUNCATE TABLE '.$connection->getTablePrefix().'migrations');
     }
 
     /**
@@ -136,7 +139,7 @@ class StateSaver
      */
     public function getMigrationFiles($path)
     {
-        $files = $this->files->glob($path . '/*_*.php');
+        $files = $this->files->glob($path.'/*_*.php');
 
         // Once we have the array of files in the directory we will just remove the
         // extension and take the basename of the file which is all we need when
@@ -202,7 +205,7 @@ class StateSaver
     {
         if (!is_null($name)) {
             $this->resolver->setDefaultConnection($name);
-            $this->connectionOptions = config('database.connections.' . $name);
+            $this->connectionOptions = config('database.connections.'.$name);
         }
         $this->repository->setSource($name);
 
@@ -243,15 +246,16 @@ class StateSaver
     {
         $connection = $this->resolver->connection();
         $databaseName = $connection->getDatabaseName();
-        $sql = "SELECT
+        $sql = 'SELECT
                     sum( data_length + index_length ) / 1024 / 1024 AS db_size
                 FROM information_schema.TABLES
-                WHERE table_schema = ? ";
+                WHERE table_schema = ? ';
         $data = $connection->select($sql, [$databaseName]);
         if (empty($data)) {
-            throw new InvalidArgumentException('Database not found - ' . $databaseName);
+            throw new InvalidArgumentException('Database not found - '.$databaseName);
         }
-        return (float)$data[0]->db_size;
+
+        return (float) $data[0]->db_size;
     }
 
     protected function emptyAppProfile()
@@ -260,14 +264,14 @@ class StateSaver
         if (!$connection->getSchemaBuilder()->hasTable('app_profile')) {
             return;
         }
-        $connection->statement('TRUNCATE TABLE ' . $connection->getTablePrefix() . 'app_profile');
+        $connection->statement('TRUNCATE TABLE '.$connection->getTablePrefix().'app_profile');
     }
 
     protected function dumpDatabase($path)
     {
         $connection = $this->resolver->connection();
-        $command = 'mysqldump -u ' . $this->connectionOptions['username'] . ' -p' . $this->connectionOptions['password'] . ' -h' . $this->connectionOptions['host'] . ' ' . $connection->getDatabaseName(
-            ) . ' > ' . $path . '/db.sql';
+        $command = 'mysqldump -u '.$this->connectionOptions['username'].' -p'.$this->connectionOptions['password'].' -h'.$this->connectionOptions['host'].' '.$connection->getDatabaseName(
+            ).' > '.$path.'/db.sql';
         $result = shell_exec($command);
         if (strpos($result, 'ERROR ')) {
             throw new Exception($result);

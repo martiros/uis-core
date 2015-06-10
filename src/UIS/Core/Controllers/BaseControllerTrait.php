@@ -5,21 +5,18 @@ namespace UIS\Core\Controllers;
 use Carbon\Carbon;
 use UIS\Core\Exceptions\Exception;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Foundation\Bus\DispatchesCommands;
-use Illuminate\Routing\Controller;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Request;
 
 trait BaseControllerTrait
 {
-    public function api($status, $data = null, $validationResult = null, $httpStatusCode = 200, $httpHeaders = array())
+    public function api($status, $data = null, $validationResult = null, $httpStatusCode = 200, $httpHeaders = [])
     {
         if ($status === null) {
             $status = $validationResult->isValid() ? 'OK' : 'INVALID_DATA';
         }
-        $result = array(
+        $result = [
             'status' => $status,
-        );
+        ];
 
         if ($validationResult !== null) {
             $result['errors'] = $validationResult;
@@ -32,10 +29,10 @@ trait BaseControllerTrait
         Carbon::setToJsonFormat(Carbon::ISO8601);
 
         try {
-//            $httpHeaders = array();
+            //            $httpHeaders = array();
 //            uis_dump($result, $httpStatusCode, $httpHeaders);
             return Response::json($result, $httpStatusCode, $httpHeaders);
-        } catch (Exception $e){
+        } catch (Exception $e) {
             uis_dump($e);
         }
     }
@@ -45,6 +42,7 @@ trait BaseControllerTrait
         if (Request::ajax() || strpos(Request::path(), 'api/') === 0) {
             return true;
         }
+
         return false;
     }
 }

@@ -7,14 +7,14 @@ use DB;
 class BufferInsert
 {
     protected $db = null;
-    protected $insertData = array();
+    protected $insertData = [];
     protected $insertDataSize = 0;
     protected $bufferMaxSize = 500;
     protected $tableName = null;
     protected $columns = null;
-    protected $updateColumns = array();
+    protected $updateColumns = [];
 
-    public function __construct($tableName, $columns, $updateColumns = array(), $connection = null)
+    public function __construct($tableName, $columns, $updateColumns = [], $connection = null)
     {
         $this->tableName = $tableName;
         $this->columns = $columns;
@@ -34,27 +34,28 @@ class BufferInsert
 
     public function flush()
     {
-        $tableName = $this->db->getTablePrefix() . $this->tableName;
-        $sql = "INSERT INTO {$tableName} ( `" . implode('`, `', $this->columns).'` ';
+        $tableName = $this->db->getTablePrefix().$this->tableName;
+        $sql = "INSERT INTO {$tableName} ( `".implode('`, `', $this->columns).'` ';
 
-        $questionMarks = array();
-        $bindings = array();
+        $questionMarks = [];
+        $bindings = [];
         foreach ($this->insertData as $data) {
-            $questionMarks[] = '(' . $this->placeholders('?', sizeof($data)) . ')';
+            $questionMarks[] = '('.$this->placeholders('?', sizeof($data)).')';
             $bindings = array_merge($bindings, $data);
         }
-        $sql .= ") VALUES " . implode(', ', $questionMarks).$this->createUpdateSql();
+        $sql .= ') VALUES '.implode(', ', $questionMarks).$this->createUpdateSql();
         $this->db->insert($sql, $bindings);
     }
 
     protected function placeholders($text, $count = 0, $separator = ', ')
     {
-        $result = array();
+        $result = [];
         if ($count > 0) {
             for ($x = 0; $x < $count; $x++) {
                 $result[] = $text;
             }
         }
+
         return implode($separator, $result);
     }
 
@@ -68,6 +69,7 @@ class BufferInsert
             $updateSql .= " `{$column}` = VALUES(`{$column}`), ";
         }
         $updateSql = trim($updateSql, ', ');
+
         return $updateSql;
     }
 }

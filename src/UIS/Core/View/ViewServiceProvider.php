@@ -17,7 +17,7 @@ class ViewServiceProvider extends ServiceProvider
         Blade::directive(
             'titleKey',
             function ($expression) {
-                return '<?php echo \UIS\Core\Page\PageFacade::title(\Illuminate\Support\Facades\Lang::trans(' . $expression . ')); ?>';
+                return '<?php echo \UIS\Core\Page\PageFacade::title(\Illuminate\Support\Facades\Lang::trans('.$expression.')); ?>';
             }
         );
 
@@ -27,7 +27,7 @@ class ViewServiceProvider extends ServiceProvider
                 if (empty($expression)) {
                     return '<?php echo \UIS\Core\Page\PageFacade::title(); ?>';
                 } else {
-                    return '<?php echo \UIS\Core\Page\PageFacade::title(\Illuminate\Support\Facades\Lang::trans(' . $expression . ')); ?>';
+                    return '<?php echo \UIS\Core\Page\PageFacade::title(\Illuminate\Support\Facades\Lang::trans('.$expression.')); ?>';
                 }
             }
         );
@@ -35,14 +35,14 @@ class ViewServiceProvider extends ServiceProvider
         Blade::directive(
             'titleTemplate',
             function ($expression) {
-                return '<?php echo \UIS\Core\Page\PageFacade::setTitleTemplate(' . $expression . '); ?>';
+                return '<?php echo \UIS\Core\Page\PageFacade::setTitleTemplate('.$expression.'); ?>';
             }
         );
 
         Blade::directive(
             'titleTemplateKey',
             function ($expression) {
-                return '<?php echo \UIS\Core\Page\PageFacade::setTitleTemplate(\Illuminate\Support\Facades\Lang::trans(' . $expression . ')); ?>';
+                return '<?php echo \UIS\Core\Page\PageFacade::setTitleTemplate(\Illuminate\Support\Facades\Lang::trans('.$expression.')); ?>';
             }
         );
 
@@ -63,6 +63,5 @@ class ViewServiceProvider extends ServiceProvider
 
     public function register()
     {
-
     }
 }

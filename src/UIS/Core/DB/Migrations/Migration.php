@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\DB\Migrations;
 
 use Illuminate\Database\Migrations\Migration as IlluminateMigration;
@@ -15,9 +16,10 @@ class Migration extends IlluminateMigration
     public function getSchemaBuilder()
     {
         $schema = DB::connection()->getSchemaBuilder();
-        $schema->blueprintResolver(function($table, $callback) {
+        $schema->blueprintResolver(function ($table, $callback) {
             return new Blueprint($table, $callback);
         });
+
         return $schema;
     }
 }

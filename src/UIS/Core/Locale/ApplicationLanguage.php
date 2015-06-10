@@ -1,7 +1,8 @@
 <?php
+
 namespace UIS\Core\Locale;
 
-use \UIS\Core\Models\BaseModel;
+use UIS\Core\Models\BaseModel;
 
 class ApplicationLanguage extends BaseModel
 {

@@ -8,5 +8,4 @@ class ConfigApiTest extends TestCase
         $this->assertTrue(!$response->isOk());
         $this->assertJson($response->getContent());
     }
-
 }

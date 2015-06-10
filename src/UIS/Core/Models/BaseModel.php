@@ -21,6 +21,7 @@ abstract class BaseModel extends Model
         if ($columns === null) {
             $columns = $this->defaultColumns;
         }
+
         return $query->get($columns);
     }
 
@@ -31,14 +32,13 @@ abstract class BaseModel extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('show_status', BaseModel::STATUS_ACTIVE);
+        return $query->where('show_status', self::STATUS_ACTIVE);
     }
 
     public function scopeOrdered($query, $mode = 'ASC')
     {
         return $query->orderBy('sort_order', $mode)->orderBy('id', 'DESC');
     }
-
 
 //    protected function asDateTime($value)
 //    {
@@ -77,8 +77,6 @@ abstract class BaseModel extends Model
 
         return $paginator->make($query->get($columns)->all(), $total, $perPage);
 
-
-
         $perPage = $perPage ?: 10;
 
         $paginator = $query->getQuery()->getConnection()->getPaginator();
@@ -92,9 +90,7 @@ abstract class BaseModel extends Model
 
         $query->getQuery()->forPage($page, $perPage);
 
-
         return $paginator->make($this->get($columns)->all(), $total, $perPage);
-
     }
 
 //    public static function all($columns = null)

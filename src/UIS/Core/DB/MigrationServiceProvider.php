@@ -1,4 +1,5 @@
 <?php
+
 namespace UIS\Core\DB;
 
 use Illuminate\Support\ServiceProvider;
@@ -6,12 +7,10 @@ use Illuminate\Database\Migrations\Migrator;
 use UIS\Core\DB\Migrations\MigrationCreator;
 use Illuminate\Database\Console\Migrations\ResetCommand;
 use Illuminate\Database\Console\Migrations\RefreshCommand;
-use Illuminate\Database\Console\Migrations\InstallCommand;
 use Illuminate\Database\Console\Migrations\MigrateCommand;
 use Illuminate\Database\Console\Migrations\RollbackCommand;
 use UIS\Core\DB\Console\Migrations\MigrateMakeCommand;
 use Illuminate\Database\Console\Migrations\StatusCommand;
-use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 use UIS\Core\DB\Console\Migrations\SaveStateCommand;
 use UIS\Core\DB\Migrations\StateSaver;
 
@@ -36,7 +35,6 @@ class MigrationServiceProvider extends ServiceProvider
         $this->registerCommands();
     }
 
-
     /**
      * Register the migrator service.
      *
@@ -47,8 +45,7 @@ class MigrationServiceProvider extends ServiceProvider
         // The migrator is responsible for actually running and rollback the migration
         // files in the application. We'll pass in our database connection resolver
         // so the migrator can resolve any of these connections when it needs to.
-        $this->app->singleton('migration.state_saver', function($app)
-        {
+        $this->app->singleton('migration.state_saver', function ($app) {
             $repository = $app['migration.repository'];
 
             return new StateSaver($repository, $app['db'], $app['files']);
@@ -69,8 +66,7 @@ class MigrationServiceProvider extends ServiceProvider
         // We'll simply spin through the list of commands that are migration related
         // and register each one of them with an application container. They will
         // be resolved in the Artisan start file and registered on the console.
-        foreach ($commands as $command)
-        {
+        foreach ($commands as $command) {
             $this->{'register'.$command.'Command'}();
         }
 
@@ -78,12 +74,9 @@ class MigrationServiceProvider extends ServiceProvider
             'command.migrate.save-state'
         );
 
-
         return;
 
-        $commands = array('Migrate', 'Rollback', 'Reset', 'Refresh', 'Install', 'Make', 'Status');
-
-
+        $commands = ['Migrate', 'Rollback', 'Reset', 'Refresh', 'Install', 'Make', 'Status'];
 
         // Once the commands are registered in the application IoC container we will
         // register them with the Artisan start event so that these are available
@@ -103,8 +96,7 @@ class MigrationServiceProvider extends ServiceProvider
      */
     protected function registerCreator()
     {
-        $this->app->singleton('migration.creator', function($app)
-        {
+        $this->app->singleton('migration.creator', function ($app) {
             return new MigrationCreator($app['files']);
         });
     }
@@ -118,8 +110,7 @@ class MigrationServiceProvider extends ServiceProvider
     {
         $this->registerCreator();
 
-        $this->app->singleton('command.migrate.make', function($app)
-        {
+        $this->app->singleton('command.migrate.make', function ($app) {
             // Once we have the migration creator registered, we will create the command
             // and inject the creator. The creator is responsible for the actual file
             // creation of the migrations, and may be extended by these developers.
@@ -142,8 +133,7 @@ class MigrationServiceProvider extends ServiceProvider
      */
     protected function registerMigrateCommand()
     {
-        $this->app->singleton('command.migrate', function($app)
-        {
+        $this->app->singleton('command.migrate', function ($app) {
             return new MigrateCommand($app['migrator']);
         });
     }
@@ -155,8 +145,7 @@ class MigrationServiceProvider extends ServiceProvider
      */
     protected function registerRollbackCommand()
     {
-        $this->app->singleton('command.migrate.rollback', function($app)
-        {
+        $this->app->singleton('command.migrate.rollback', function ($app) {
             return new RollbackCommand($app['migrator']);
         });
     }
@@ -168,8 +157,7 @@ class MigrationServiceProvider extends ServiceProvider
      */
     protected function registerResetCommand()
     {
-        $this->app->singleton('command.migrate.reset', function($app)
-        {
+        $this->app->singleton('command.migrate.reset', function ($app) {
             return new ResetCommand($app['migrator']);
         });
     }
@@ -181,16 +169,14 @@ class MigrationServiceProvider extends ServiceProvider
      */
     protected function registerRefreshCommand()
     {
-        $this->app->singleton('command.migrate.refresh', function()
-        {
+        $this->app->singleton('command.migrate.refresh', function () {
             return new RefreshCommand;
         });
     }
 
     protected function registerStatusCommand()
     {
-        $this->app->singleton('command.migrate.status', function($app)
-        {
+        $this->app->singleton('command.migrate.status', function ($app) {
             return new StatusCommand($app['migrator']);
         });
     }
@@ -202,13 +188,10 @@ class MigrationServiceProvider extends ServiceProvider
      */
     protected function registerSaveStateCommand()
     {
-        $this->app->singleton('command.migrate.save-state', function($app)
-        {
+        $this->app->singleton('command.migrate.save-state', function ($app) {
             return new SaveStateCommand($app['migration.state_saver']);
         });
     }
-
-
 
     /**
      * Get the services provided by the provider.
@@ -217,13 +200,12 @@ class MigrationServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array(
+        return [
             'migrator', 'migration.repository', 'command.migrate',
             'command.migrate.rollback', 'command.migrate.reset',
             'command.migrate.refresh', 'command.migrate.install',
             'command.migrate.status', 'migration.creator',
             'command.migrate.make',
-        );
+        ];
     }
-
 }
