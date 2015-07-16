@@ -119,4 +119,26 @@ abstract class TestCase extends IlluminateTestCase
             );
         }
     }
+
+    /**
+     * Assert that a given table empty.
+     *
+     * @param  string  $table
+     * @param  string  $connection
+     * @return $this
+     */
+    protected function seeEmptyTable($table, $connection = null)
+    {
+        $database = $this->app->make('db');
+
+        $connection = $connection ?: $database->getDefaultConnection();
+
+        $count = $database->connection($connection)->table($table)->count();
+
+        $this->assertEquals(0, $count, sprintf(
+            'Table [%s] not empty.', $table
+        ));
+
+        return $this;
+    }
 }
