@@ -141,4 +141,27 @@ abstract class TestCase extends IlluminateTestCase
 
         return $this;
     }
+
+
+    /**
+     * Assert that a given table not empty.
+     *
+     * @param  string  $table
+     * @param  string  $connection
+     * @return $this
+     */
+    protected function seeNotEmptyTable($table, $connection = null)
+    {
+        $database = $this->app->make('db');
+
+        $connection = $connection ?: $database->getDefaultConnection();
+
+        $count = $database->connection($connection)->table($table)->count();
+
+        $this->assertNotEquals(0, $count, sprintf(
+            'Table [%s] empty.', $table
+        ));
+
+        return $this;
+    }
 }
