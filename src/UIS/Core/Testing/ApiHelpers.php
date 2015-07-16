@@ -43,27 +43,29 @@ trait ApiHelpers
 
     public function assertApiStatusOk()
     {
-        $this->assertApiStatus('OK');
+        return $this->assertApiStatus('OK');
     }
 
     public function assertApiStatusNotAuth()
     {
-        $this->assertApiStatus('NOT_AUTH');
+        return $this->assertApiStatus('NOT_AUTH');
     }
 
     public function assertApiStatusInvalidData()
     {
-        $this->assertApiStatus('INVALID_DATA');
+        return $this->assertApiStatus('INVALID_DATA');
     }
 
     public function assertApiStatusNotFound()
     {
-        $this->assertApiStatus('NOT_FOUND');
+        return $this->assertApiStatus('NOT_FOUND');
     }
 
     public function assertApiStatus($status)
     {
         $this->assertEquals($status, $this->responseObject->status, print_r((array) $this->responseObject, true));
+
+        return $this;
     }
 
     protected function uploadFile($filePath, $fileName = null, $error = 0)
