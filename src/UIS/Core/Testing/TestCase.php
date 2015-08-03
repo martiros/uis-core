@@ -23,6 +23,7 @@ abstract class TestCase extends IlluminateTestCase
     public function tearDown()
     {
         Mockery::close();
+        parent::tearDown();
     }
 
     public function getUserForAuth()
@@ -67,7 +68,7 @@ abstract class TestCase extends IlluminateTestCase
      */
     public function mock($class)
     {
-        $obj = $this->app->make($class);
+        $obj = isset($this->app[$class]) ? $this->app[$class] : null;
         if (empty($obj) || !($obj instanceof MockInterface)) {
             $obj = Mockery::mock($class);
             $this->app->instance($class, $obj);
