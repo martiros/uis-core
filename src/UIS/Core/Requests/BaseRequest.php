@@ -173,7 +173,7 @@ abstract class BaseRequest extends FormRequest
         }
 
         if ($data !== null) {
-            $result['data'] = $data;
+            $result = array_merge($result, $data);
         }
 
         Carbon::setToJsonFormat(Carbon::ISO8601);
